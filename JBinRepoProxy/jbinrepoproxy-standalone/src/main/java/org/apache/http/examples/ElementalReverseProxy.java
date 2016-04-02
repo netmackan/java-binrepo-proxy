@@ -27,6 +27,7 @@
 
 package org.apache.http.examples;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
@@ -42,6 +43,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -64,6 +66,7 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Elemental HTTP/1.1 reverse proxy.
@@ -86,27 +89,45 @@ public class ElementalReverseProxy {
         }
         final HttpHost target = new HttpHost(hostname, port);
 
-        final Thread t = new RequestListenerThread(8888, target);
+        final Thread t = new RequestListenerThread(8888, target, new AcceptAllRequestFilter());
         t.setDaemon(false);
         t.start();
     }
 
+    // TODO: This functionality is probably already available in HTTP Components
+    public interface RequestFilter {
+        
+        public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn, HttpContext context, HttpProcessor httpproc, HttpRequestExecutor httpexecutor, ConnectionReuseStrategy connStrategy) throws HttpException, IOException;
+    }
+    
+    public static class AcceptAllRequestFilter implements RequestFilter {
+
+        @Override
+        public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn, HttpContext context, HttpProcessor httpproc, HttpRequestExecutor httpexecutor, ConnectionReuseStrategy connStrategy) {
+            return true;
+        }
+
+    }
+    
     static class ProxyHandler implements HttpRequestHandler  {
 
         private final HttpHost target;
         private final HttpProcessor httpproc;
         private final HttpRequestExecutor httpexecutor;
         private final ConnectionReuseStrategy connStrategy;
+        private final RequestFilter filter;
 
         public ProxyHandler(
                 final HttpHost target,
                 final HttpProcessor httpproc,
-                final HttpRequestExecutor httpexecutor) {
+                final HttpRequestExecutor httpexecutor,
+                final RequestFilter filter) {
             super();
             this.target = target;
             this.httpproc = httpproc;
             this.httpexecutor = httpexecutor;
             this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+            this.filter = filter;
         }
 
         public void handle(
@@ -131,7 +152,7 @@ public class ElementalReverseProxy {
             request.removeHeaders("TE");
             request.removeHeaders("Trailers");
             request.removeHeaders("Upgrade");
-            
+
             // JBinRepoProxy: Modified to be able to run from localhost without using a different hostname
             // Sets the request hostname to the hostname of the server
             final String host = request.getFirstHeader("Host").getValue();
@@ -143,18 +164,34 @@ public class ElementalReverseProxy {
             final HttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
             this.httpexecutor.postProcess(response, this.httpproc, context);
 
-            // Remove hop-by-hop headers
-            targetResponse.removeHeaders(HTTP.CONTENT_LEN);
-            targetResponse.removeHeaders(HTTP.TRANSFER_ENCODING);
-            targetResponse.removeHeaders(HTTP.CONN_DIRECTIVE);
-            targetResponse.removeHeaders("Keep-Alive");
-            targetResponse.removeHeaders("TE");
-            targetResponse.removeHeaders("Trailers");
-            targetResponse.removeHeaders("Upgrade");
+            final byte[] targetBody = EntityUtils.toByteArray(targetResponse.getEntity());
+            System.out.println("Read body of " + targetBody.length + " bytes");
+            EntityUtils.consume(targetResponse.getEntity());
+            
+            if (filter.isAcceptable(request, targetResponse, targetBody, conn, context, this.httpproc, this.httpexecutor, this.connStrategy)) {
+                
+                // Remove hop-by-hop headers
+                targetResponse.removeHeaders(HTTP.CONTENT_LEN);
+                targetResponse.removeHeaders(HTTP.TRANSFER_ENCODING);
+                targetResponse.removeHeaders(HTTP.CONN_DIRECTIVE);
+                targetResponse.removeHeaders("Keep-Alive");
+                targetResponse.removeHeaders("TE");
+                targetResponse.removeHeaders("Trailers");
+                targetResponse.removeHeaders("Upgrade");
 
-            response.setStatusLine(targetResponse.getStatusLine());
-            response.setHeaders(targetResponse.getAllHeaders());
-            response.setEntity(targetResponse.getEntity());
+                response.setStatusLine(targetResponse.getStatusLine());
+                response.setHeaders(targetResponse.getAllHeaders());
+                //response.setEntity(targetResponse.getEntity());
+                BasicHttpEntity responseEntity = new BasicHttpEntity();
+                responseEntity.setContent(new ByteArrayInputStream(targetBody));
+                responseEntity.setContentLength(targetBody.length);
+                response.setEntity(responseEntity);
+                
+            } else {
+                response.setStatusLine(request.getProtocolVersion(), 403, "Forbidden by proxy");
+                // TODO: What would be appropriate response.setHeaders();
+                response.setEntity(null);
+            }
 
             System.out.println("<< Response: " + response.getStatusLine());
 
@@ -170,7 +207,7 @@ public class ElementalReverseProxy {
         private final ServerSocket serversocket;
         private final HttpService httpService;
 
-        public RequestListenerThread(final int port, final HttpHost target) throws IOException {
+        public RequestListenerThread(final int port, final HttpHost target, final RequestFilter filter) throws IOException {
             this.target = target;
             this.serversocket = new ServerSocket(port);
 
@@ -201,7 +238,8 @@ public class ElementalReverseProxy {
             reqistry.register("*", new ProxyHandler(
                     this.target,
                     outhttpproc,
-                    httpexecutor));
+                    httpexecutor,
+                    filter));
 
             // Set up the HTTP service
             this.httpService = new HttpService(inhttpproc, reqistry);

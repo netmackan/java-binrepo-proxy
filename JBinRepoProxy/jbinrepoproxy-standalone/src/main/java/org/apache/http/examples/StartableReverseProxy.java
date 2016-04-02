@@ -26,8 +26,8 @@ import org.apache.http.HttpHost;
  */
 public class StartableReverseProxy extends ElementalReverseProxy {
     
-    public void start(final int port, final HttpHost target) throws IOException {
-        final Thread t = new StartableReverseProxy.RequestListenerThread(8888, target);
+    public void start(final int port, final HttpHost target, ElementalReverseProxy.RequestFilter filter) throws IOException {
+        final Thread t = new StartableReverseProxy.RequestListenerThread(8888, target, filter);
         t.setDaemon(false);
         t.start();
     }

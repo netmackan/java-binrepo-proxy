@@ -18,7 +18,28 @@ package com.markuspage.jbinrepoproxy.standalone;
 
 import org.apache.http.examples.StartableReverseProxy;
 import java.io.IOException;
+import java.net.Socket;
+import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.examples.ElementalReverseProxy;
+import org.apache.http.impl.DefaultBHttpClientConnection;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpProcessorBuilder;
+import org.apache.http.protocol.HttpRequestExecutor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.util.EntityUtils;
 
 /**
  * Standalone proxy application.
@@ -43,8 +64,71 @@ public class Main {
         if (args.length > 1) {
             targetPort = Integer.parseInt(args[2]);
         }
+        final int ttargetPort = targetPort;
         System.out.println("Will proxy to " + targetHost + ":" + targetPort);
-        new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort));
+        new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort), new ElementalReverseProxy.RequestFilter() {
+            @Override
+            public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
+                final String uri = request.getRequestLine().getUri();
+                System.out.println("Is acceptable?: " + uri);
+                final boolean results;
+                
+                // Always accept signature files
+                if (uri.endsWith(".asc")) {
+                    results = true;
+                } else {
+                    
+                    //TODO: I want to re-use the existing connection
+                
+                    HttpProcessor httpproc = HttpProcessorBuilder.create()
+                    .add(new RequestContent())
+                    .add(new RequestTargetHost())
+                    .add(new RequestConnControl())
+                    .add(new RequestUserAgent("Test/1.1"))
+                    .add(new RequestExpectContinue(true)).build();
+
+                    HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
+
+                    HttpCoreContext coreContext = HttpCoreContext.create();
+                    HttpHost host = new HttpHost(targetHost, ttargetPort);
+                    coreContext.setTargetHost(host);
+
+                    DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
+                    ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+
+                    if (!conn.isOpen()) {
+                        Socket socket = new Socket(host.getHostName(), host.getPort());
+                        conn.bind(socket);
+                    }
+                    
+                    BasicHttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
+                    System.out.println("Will fetch " + ascRequest.getRequestLine());
+                    httpexecutor.preProcess(ascRequest, httpproc, context);
+                    HttpResponse ascResponse = httpexecutor.execute(ascRequest, conn, context);
+                    httpexecutor.postProcess(ascResponse, httpproc, context);
+
+                    System.out.println("<< asc response: " + ascResponse.getStatusLine());
+                    System.out.println(EntityUtils.toString(ascResponse.getEntity()));
+                    
+                    // TODO: Check the signature here
+                    
+                    
+                    System.out.println("==============");
+                    if (!connStrategy.keepAlive(ascResponse, context)) {
+                        conn.close();
+                    } else {
+                        System.out.println("Connection kept alive...");
+                    }
+            
+                    conn.close();
+                    
+                    results = true;
+                }
+                
+                
+                return results;
+            }
+        });
     }
 
 }
