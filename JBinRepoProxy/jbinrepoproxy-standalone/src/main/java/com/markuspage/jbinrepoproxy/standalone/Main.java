@@ -32,7 +32,19 @@ public class Main {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
-        new StartableReverseProxy().start(8888, new HttpHost("markuspage.com", 80));
+        if (args.length < 2) {
+            System.err.println("Usage: jbinrepoproxy-standalone <PORT> <TARGET HOSTNAME> [TARGET PORT]");
+            System.err.println("Example: jbinreporoxy-standalone 8888 repo1.example.com 80");
+            System.exit(1);
+        }
+        final int port = Integer.parseInt(args[0]);
+        final String targetHost = args[1];
+        int targetPort = 80;
+        if (args.length > 1) {
+            targetPort = Integer.parseInt(args[2]);
+        }
+        System.out.println("Will proxy to " + targetHost + ":" + targetPort);
+        new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort));
     }
 
 }
