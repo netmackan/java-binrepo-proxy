@@ -131,6 +131,13 @@ public class ElementalReverseProxy {
             request.removeHeaders("TE");
             request.removeHeaders("Trailers");
             request.removeHeaders("Upgrade");
+            
+            // JBinRepoProxy: Modified to be able to run from localhost without using a different hostname
+            // Sets the request hostname to the hostname of the server
+            final String host = request.getFirstHeader("Host").getValue();
+            if (host != null && (host.startsWith("localhost:") || host.equals("localhost"))) {
+                request.setHeader("Host", target.getHostName());
+            }
 
             this.httpexecutor.preProcess(request, this.httpproc, context);
             final HttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
