@@ -36,6 +36,11 @@ Configure your ~/.m2/settings.xml to use the proxy instead of Central
 
 TODO: Configure trusted public keys
 
+Tip: To test building of your project with an empty repository in order to see that it fetches and verifies the artifacts an empty folder can be specified as your local Maven repo:
+```
+mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
+```
+
 ## Known Limitations
 
 - Not functional yet, i.e. OpenPGP verification missing and configuration of public keys
