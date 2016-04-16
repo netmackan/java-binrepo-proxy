@@ -16,9 +16,25 @@
  */
 package com.markuspage.jbinrepoproxy.standalone;
 
+import com.github.s4u.plugins.PGPKeysCache;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import org.apache.http.examples.StartableReverseProxy;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpException;
@@ -40,6 +56,14 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPObjectFactory;
+import org.bouncycastle.openpgp.PGPPublicKey;
+import org.bouncycastle.openpgp.PGPSignature;
+import org.bouncycastle.openpgp.PGPSignatureList;
+import org.bouncycastle.openpgp.PGPUtil;
+import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
+import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 
 /**
  * Standalone proxy application.
@@ -48,24 +72,55 @@ import org.apache.http.util.EntityUtils;
  */
 public class Main {
 
+    private static final Log LOG = LogFactory.getLog(Main.class);
+    
+    private static final Map<Integer, String> WEAK_SIGALGS = new HashMap<>();
+
+    static {
+        WEAK_SIGALGS.put(1, "MD5");
+        WEAK_SIGALGS.put(4, "DOUBLE_SHA");
+        WEAK_SIGALGS.put(5, "MD2");
+        WEAK_SIGALGS.put(6, "TIGER_192");
+        WEAK_SIGALGS.put(7, "HAVAL_5_160");
+        WEAK_SIGALGS.put(11, "SHA224");
+    }
+    
+    private static final boolean failWeakSignature = true;
+    
     /**
      * @param args the command line arguments
      * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException {
-        if (args.length < 2) {
-            System.err.println("Usage: jbinrepoproxy-standalone <PORT> <TARGET HOSTNAME> [TARGET PORT]");
-            System.err.println("Example: jbinreporoxy-standalone 8888 repo1.example.com 80");
+    public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+        if (args.length < 3) {
+            System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE> <PORT> <TARGET HOSTNAME> [TARGET PORT]");
+            System.err.println("Example: jbinreporoxy-standalone keysmap.properties 8888 repo1.example.com 80");
             System.exit(1);
         }
-        final int port = Integer.parseInt(args[0]);
-        final String targetHost = args[1];
+        final File keysmapFile = new File(args[0]);
+        final int port = Integer.parseInt(args[1]);
+        final String targetHost = args[2];
         int targetPort = 80;
-        if (args.length > 1) {
-            targetPort = Integer.parseInt(args[2]);
+        if (args.length > 2) {
+            targetPort = Integer.parseInt(args[3]);
         }
         final int ttargetPort = targetPort;
+        
+        // Keys map
+        System.out.println("Using keys map file " + keysmapFile.getAbsolutePath());
+        Properties keysmapProperties = new Properties();
+        try (FileInputStream fin = new FileInputStream(keysmapFile)) {
+            keysmapProperties.load(fin);
+        }
+        final KeysMap keysMap = new KeysMap(keysmapProperties);
+
         System.out.println("Will proxy to " + targetHost + ":" + targetPort);
+        
+        // Keys cache
+        File cachePath = new File("/tmp/"); // TODO
+        String keyServer = "hkps://hkps.pool.sks-keyservers.net"; // TODO
+        final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, keyServer);
+
         new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort), new ElementalReverseProxy.RequestFilter() {
             @Override
             public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
@@ -73,8 +128,8 @@ public class Main {
                 System.out.println("Is acceptable?: " + uri);
                 final boolean results;
                 
-                // Always accept signature files
-                if (uri.endsWith(".asc")) {
+                // Always accept signature files and digests
+                if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
                     results = true;
                 } else {
                     
@@ -108,9 +163,12 @@ public class Main {
                     httpexecutor.postProcess(ascResponse, httpproc, context);
 
                     System.out.println("<< asc response: " + ascResponse.getStatusLine());
-                    System.out.println(EntityUtils.toString(ascResponse.getEntity()));
+                    // TODO: Check status code!
+                    String signature = EntityUtils.toString(ascResponse.getEntity());
+                    System.out.println(signature);
                     
                     // TODO: Check the signature here
+                    results = verifyPGPSignature(uri, targetBody, signature);
                     
                     
                     System.out.println("==============");
@@ -121,14 +179,64 @@ public class Main {
                     }
             
                     conn.close();
-                    
-                    results = true;
                 }
                 
                 
                 return results;
             }
+            
+            private boolean verifyPGPSignature(String uri, byte[] data, String signature) throws IOException {
+                try {
+                    InputStream sigInputStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature.getBytes("ASCII")));
+                    PGPObjectFactory pgpObjectFactory = new PGPObjectFactory(sigInputStream, new BcKeyFingerprintCalculator());
+                    PGPSignatureList sigList = (PGPSignatureList) pgpObjectFactory.nextObject();
+                    if (sigList == null) {
+                        throw new IOException("Missing signature");
+                    }
+                    PGPSignature pgpSignature = sigList.get(0);
+                    
+                    PGPPublicKey publicKey = pgpKeysCache.getKey(pgpSignature.getKeyID());
+                    
+                    if (!keysMap.isValidKey(uri, publicKey)) {
+                        String msg = String.format("%s=0x%X", uri, publicKey.getKeyID());
+                        String keyUrl = pgpKeysCache.getUrlForShowKey(publicKey.getKeyID());
+                        getLog().error(String.format("Not allowed artifact %s and keyID:\n\t%s\n\t%s\n", uri, msg, keyUrl));
+                        return false;
+                    }
+                    
+                    pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
+                    pgpSignature.update(data);
+                    
+                    String msgFormat = "%s PGP Signature %s\n       KeyId: 0x%X UserIds: %s";
+                    if (pgpSignature.verify()) {
+                        getLog().info(String.format(msgFormat, uri,
+                                "OK", publicKey.getKeyID(), Arrays.asList(publicKey.getUserIDs())));
+                        if (WEAK_SIGALGS.containsKey(pgpSignature.getHashAlgorithm())) {
+                            if (failWeakSignature) {
+                                getLog().error("Weak signature algorithm used: "
+                                        + WEAK_SIGALGS.get(pgpSignature.getHashAlgorithm()));
+                                return false;
+                            } else {
+                                getLog().warn("Weak signature algorithm used: "
+                                        + WEAK_SIGALGS.get(pgpSignature.getHashAlgorithm()));
+                            }
+                        }
+                        return true;
+                    } else {
+                        getLog().warn(String.format(msgFormat, uri,
+                                "ERROR", publicKey.getKeyID(), Arrays.asList(publicKey.getUserIDs())));
+                        getLog().warn(uri);
+                        return false;
+                    }
+                } catch (PGPException ex) {
+                    throw new IOException(ex);
+                }
+            }
+
+            private Log getLog() {
+                return LOG;
+            }
         });
     }
-
+    
 }
