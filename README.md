@@ -11,7 +11,7 @@ The purpose is to solve the lack of proper signature verification support in Mav
 
 Start the proxy
 ```
-jbinrepoproxy-standalone 8888 repo.maven.apache.org 80
+jbinrepoproxy-standalone trust/keysmap.properties 8888 repo.maven.apache.org 80
 ```
 
 Configure your ~/.m2/settings.xml to use the proxy instead of Central
@@ -34,7 +34,7 @@ Configure your ~/.m2/settings.xml to use the proxy instead of Central
 </settings>
 ```
 
-TODO: Configure trusted public keys
+Trusted keys (or digests) for different artifacts are configured in the keys mapping file. See trust/keysmap.properties.
 
 Tip: To test building of your project with an empty repository in order to see that it fetches and verifies the artifacts an empty folder can be specified as your local Maven repo:
 ```
@@ -43,5 +43,4 @@ mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
 
 ## Known Limitations
 
-- Not functional yet, i.e. OpenPGP verification missing and configuration of public keys
 - No HTTPS/TLS support yet
