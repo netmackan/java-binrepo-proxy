@@ -20,6 +20,7 @@ import com.github.s4u.plugins.PGPKeysCache;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import org.apache.http.examples.StartableReverseProxy;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,7 +92,7 @@ public class Main {
      * @param args the command line arguments
      * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException {
+    public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, FileNotFoundException, PGPException {
         if (args.length < 3) {
             System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE> <PORT> <TARGET HOSTNAME> [TARGET PORT]");
             System.err.println("Example: jbinreporoxy-standalone keysmap.properties 8888 repo1.example.com 80");
@@ -113,6 +114,8 @@ public class Main {
             keysmapProperties.load(fin);
         }
         final KeysMap keysMap = new KeysMap(keysmapProperties);
+        keysMap.load();
+        keysMap.print();
 
         System.out.println("Will proxy to " + targetHost + ":" + targetPort);
         
