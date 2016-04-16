@@ -19,7 +19,6 @@ package com.markuspage.jbinrepoproxy.standalone;
 import com.github.s4u.plugins.PGPKeysCache;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import org.apache.http.examples.StartableReverseProxy;
 import java.io.IOException;
@@ -33,7 +32,6 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.ConnectionReuseStrategy;
@@ -95,7 +93,7 @@ public class Main {
     public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, FileNotFoundException, PGPException {
         if (args.length < 3) {
             System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE> <PORT> <TARGET HOSTNAME> [TARGET PORT]");
-            System.err.println("Example: jbinreporoxy-standalone keysmap.properties 8888 repo1.example.com 80");
+            System.err.println("Example: jbinreporoxy-standalone trust/keysmap.properties 8888 repo1.example.com 80");
             System.exit(1);
         }
         final File keysmapFile = new File(args[0]);
@@ -109,12 +107,8 @@ public class Main {
         
         // Keys map
         System.out.println("Using keys map file " + keysmapFile.getAbsolutePath());
-        Properties keysmapProperties = new Properties();
-        try (FileInputStream fin = new FileInputStream(keysmapFile)) {
-            keysmapProperties.load(fin);
-        }
-        final KeysMap keysMap = new KeysMap(keysmapProperties);
-        keysMap.load();
+        final KeysMap keysMap = new KeysMap();
+        keysMap.load(keysmapFile);
         keysMap.print();
 
         System.out.println("Will proxy to " + targetHost + ":" + targetPort);
@@ -129,7 +123,7 @@ public class Main {
             public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
                 final String uri = request.getRequestLine().getUri();
                 System.out.println("Is acceptable?: " + uri);
-                final boolean results;
+                boolean results;
                 
                 // Always accept signature files and digests
                 if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
@@ -151,37 +145,42 @@ public class Main {
                     HttpHost host = new HttpHost(targetHost, ttargetPort);
                     coreContext.setTargetHost(host);
 
-                    DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
-                    ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+                    try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
+                        ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+                        
+                        if (!conn.isOpen()) {
+                            Socket socket = new Socket(host.getHostName(), host.getPort());
+                            conn.bind(socket);
+                        }
+                        
+                        BasicHttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
+                        System.out.println("Will fetch " + ascRequest.getRequestLine());
+                        httpexecutor.preProcess(ascRequest, httpproc, context);
+                        HttpResponse ascResponse = httpexecutor.execute(ascRequest, conn, context);
+                        httpexecutor.postProcess(ascResponse, httpproc, context);
+                        
+                        System.out.println("<< asc response: " + ascResponse.getStatusLine());
+                        if (ascResponse.getStatusLine().getStatusCode() == 404) {
+                            System.err.println("Signature file not found, checking for trusted digest instead");
+                            results = verifyDigest(uri, targetBody);
+                        } else {
+                            String signature = EntityUtils.toString(ascResponse.getEntity());
+                            System.out.println(signature);
 
-                    if (!conn.isOpen()) {
-                        Socket socket = new Socket(host.getHostName(), host.getPort());
-                        conn.bind(socket);
-                    }
-                    
-                    BasicHttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
-                    System.out.println("Will fetch " + ascRequest.getRequestLine());
-                    httpexecutor.preProcess(ascRequest, httpproc, context);
-                    HttpResponse ascResponse = httpexecutor.execute(ascRequest, conn, context);
-                    httpexecutor.postProcess(ascResponse, httpproc, context);
+                            results = verifyPGPSignature(uri, targetBody, signature);
 
-                    System.out.println("<< asc response: " + ascResponse.getStatusLine());
-                    // TODO: Check status code!
-                    String signature = EntityUtils.toString(ascResponse.getEntity());
-                    System.out.println(signature);
-                    
-                    // TODO: Check the signature here
-                    results = verifyPGPSignature(uri, targetBody, signature);
-                    
-                    
-                    System.out.println("==============");
-                    if (!connStrategy.keepAlive(ascResponse, context)) {
-                        conn.close();
-                    } else {
-                        System.out.println("Connection kept alive...");
+
+                            System.out.println("==============");
+                            if (!connStrategy.keepAlive(ascResponse, context)) {
+                                conn.close();
+                            } else {
+                                System.out.println("Connection kept alive...");
+                            }
+                        }
+                    } catch (HttpException | IOException ex) {
+                        ex.printStackTrace();
+                        results = false;
                     }
-            
-                    conn.close();
                 }
                 
                 
@@ -234,6 +233,10 @@ public class Main {
                 } catch (PGPException ex) {
                     throw new IOException(ex);
                 }
+            }
+            
+            private boolean verifyDigest(String uri, byte[] data) {
+                return keysMap.isValidDigest(uri, data);
             }
 
             private Log getLog() {

@@ -19,10 +19,13 @@ package com.markuspage.jbinrepoproxy.standalone;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,21 +51,31 @@ public class KeysMap {
 
     private static final String FINGERPRINT_PREFIX = "FINGERPRINT";
     private static final String TRUSTFILE_PREFIX = "TRUSTFILE";
+    private static final String DIGEST_PREFIX = "TRUSTEDDIGEST";
     
-    private final Properties properties;
+    private Properties properties;
 
-    public KeysMap(Properties properties) {
-        this.properties = properties;
-    }
-    
-    public void load() throws IOException, FileNotFoundException, PGPException {
+    public void load(File keysmapFile) throws IOException, FileNotFoundException, PGPException {
+        
+        Properties keysmapProperties = new Properties();
+        try (FileInputStream fin = new FileInputStream(keysmapFile)) {
+            keysmapProperties.load(fin);
+        }
+        this.properties = keysmapProperties;
+        
         for (String key : properties.stringPropertyNames()) {
             if (key.startsWith(TRUSTFILE_PREFIX)) {
                 String artifact = key.substring(TRUSTFILE_PREFIX.length() + 1);
                 final String file = properties.getProperty(key);
                 System.out.println("Loading trusted keys for " + artifact + " from " + file);
                 
-                for (PGPPublicKey publicKey : parsePublicKeys(new File(file))) {
+                // File names are relative to the property file
+                File pubFile = new File(file);
+                if (!pubFile.isAbsolute()) {
+                    pubFile = new File(keysmapFile.getParentFile(), file);
+                }
+                
+                for (PGPPublicKey publicKey : parsePublicKeys(pubFile)) {
                     //System.out.println("# Id: " + String.format("0x%X", publicKey.getKeyID()));
                     //System.out.println(FINGERPRINT_PREFIX + "." + Hex.toHexString(publicKey.getFingerprint()) + "=" + artifact);
                     String keyKey = FINGERPRINT_PREFIX + "." + Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
@@ -157,5 +170,28 @@ public class KeysMap {
             }
         }
         return results;
+    }
+
+    public boolean isValidDigest(String uri, byte[] data) {
+        final boolean result;
+        
+        try {
+            MessageDigest md;
+            md = MessageDigest.getInstance("SHA-256");
+            String actualValue = Hex.toHexString(md.digest(data));
+            String digestValue = properties.getProperty(DIGEST_PREFIX + "." + uri);
+            if (digestValue == null) {
+                System.out.println("No trusted digest for this file: " + uri);
+                System.out.println("TRUSTEDDIGEST." + uri + "=" + actualValue);
+                result = false;
+            } else {
+                    result = digestValue.equalsIgnoreCase(actualValue);
+
+            }
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException(ex);
+        }
+        
+        return result;
     }
 }
