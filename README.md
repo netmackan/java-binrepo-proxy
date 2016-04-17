@@ -34,11 +34,34 @@ Configure your ~/.m2/settings.xml to use the proxy instead of Central
 </settings>
 ```
 
-Trusted keys (or digests) for different artifacts are configured in the keys mapping file. See trust/keysmap.properties.
-
 Tip: To test building of your project with an empty repository in order to see that it fetches and verifies the artifacts an empty folder can be specified as your local Maven repo:
 ```
 mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
+```
+
+## Trust Configuration
+Trusted keys (or digests) for different artifacts are configured in the keys mapping file. See trust/keysmap.properties.
+
+The idea being that the public keys are obtained from each project of interest and the keys mapping file is updated with entries mapping from a key fingerprint to the path it is trusted for (i.e. an Apache Commons Lang release key could be allowed to verify artifacts with a URI starting with "/maven2/org/apache/commons/commons-lang/".
+
+To simplify the mapping as projects can have many different signing keys it is also possible to specify that all the public keys in a KEYS file should be trusted for a given path. This is useful for all the Apache projects as those publishes a KEYS file for each of their projects.
+
+Further as some projects even on the Central are missing signatures it is possible to specify a complete URI of an Artifact and the SHA-256 sum of it. In that case the digest would be verified and the artifact accepted even though there is no signature. This exception is required as some old dependencies of Maven (!) are missing signatures.
+
+### Example:
+```
+# Trust Maven keys for Maven and the Apache parent POMs
+TRUSTFILE./maven2/org/apache/maven/=apache-maven-KEYS.asc
+TRUSTFILE./maven2/org/apache/apache/=apache-maven-KEYS.asc
+
+# maven-toolchain was signed by a different key, manually specify that one
+FINGERPRINT.2E795B761F5B3B39CA46E48C66F196CA727DE1C5=/maven2/org/apache/maven/maven-toolchain/1.0/
+
+# Old Maven dependencies without signatures, harcode the digests
+TRUSTEDDIGEST./maven2/org/apache/maven/maven-parent/5/maven-parent-5.pom=5d7c2a229173155823c45380332f221bf0d27e52c9db76e9217940306765bd50
+
+# Trust Commons Logging keys for Log4j
+TRUSTFILE./maven2/log4j/log4j/=apache-logging-KEYS.asc
 ```
 
 ## Known Limitations
