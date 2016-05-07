@@ -70,7 +70,7 @@ public class Main {
     private static final Log LOG = LogFactory.getLog(Main.class);
     
     private static final Map<Integer, String> WEAK_SIGALGS = new HashMap<>();
-
+    
     static {
         WEAK_SIGALGS.put(1, "MD5");
         WEAK_SIGALGS.put(4, "DOUBLE_SHA");
@@ -85,34 +85,41 @@ public class Main {
     /**
      * @param args the command line arguments
      * @throws java.io.IOException
+     * @throws java.net.URISyntaxException
+     * @throws java.security.cert.CertificateException
+     * @throws java.security.NoSuchAlgorithmException
+     * @throws java.io.FileNotFoundException
+     * @throws java.security.KeyStoreException
+     * @throws java.security.KeyManagementException
+     * @throws org.bouncycastle.openpgp.PGPException
      */
     public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, FileNotFoundException, PGPException {
-        if (args.length < 5) {
-            System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE> <PORT> <TARGET HOSTNAME> <TARGET PORT> <TARGET SCHEME>");
-            System.err.println("Example 1: jbinreporoxy-standalone trust/keysmap.properties 8888 repo1.example.com 80 http");
-            System.err.println("Example 2: jbinreporoxy-standalone trust/keysmap.properties 8888 repo1.example.com 443 https");
+        if (args.length != 1) {
+            System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE>");
+            System.err.println("Example: jbinreporoxy-standalone conf/jbinrepoproxy-standalone.properties");
             System.exit(1);
         }
-        final File keysmapFile = new File(args[0]);
-        final int port = Integer.parseInt(args[1]);
-        final String targetHost = args[2];
-        final int targetPort = Integer.parseInt(args[3]);
-        final String targetScheme = args[4];
+
+        // Configuration file
+        final File file = new File(args[0]);
+        final Configuration config = Configuration.fromFile(file);
         
         // Keys map
-        System.out.println("Using keys map file " + keysmapFile.getAbsolutePath());
-        final KeysMap keysMap = new KeysMap();
-        keysMap.load(keysmapFile);
+        System.out.println("Using keys map file " + config.getTrustMapFile());
+        final KeysMap keysMap = KeysMap.fromFile(config.getTrustMapFile());
         keysMap.print();
 
-        System.out.println("Will proxy to " + targetScheme + "://" + targetHost + ":" + targetPort);
+        // Target
+        System.out.println("Binding to " + config.getPort());
+        final HttpHost host = new HttpHost(config.getTargetHost(), config.getTargetPort(), config.getTargetScheme());
+        System.out.println("Will proxy to " +  host);
         
         // Keys cache
         File cachePath = new File("/tmp/"); // TODO
         String keyServer = "hkps://hkps.pool.sks-keyservers.net"; // TODO
         final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, keyServer);
 
-        new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort, targetScheme), new ElementalReverseProxy.RequestFilter() {
+        new StartableReverseProxy().start(config.getPort(), host, new ElementalReverseProxy.RequestFilter() {
             @Override
             public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
                 final String uri = request.getRequestLine().getUri();

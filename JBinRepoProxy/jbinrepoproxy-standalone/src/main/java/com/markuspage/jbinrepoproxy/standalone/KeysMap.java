@@ -52,34 +52,33 @@ public class KeysMap {
     private static final String FINGERPRINT_PREFIX = "FINGERPRINT";
     private static final String TRUSTFILE_PREFIX = "TRUSTFILE";
     private static final String DIGEST_PREFIX = "TRUSTEDDIGEST";
-    
+
     private Properties properties;
 
-    public void load(File keysmapFile) throws IOException, FileNotFoundException, PGPException {
-        
-        Properties keysmapProperties = new Properties();
-        try (FileInputStream fin = new FileInputStream(keysmapFile)) {
-            keysmapProperties.load(fin);
+    public static KeysMap fromFile(File file) throws IOException, FileNotFoundException, PGPException {
+
+        final Properties properties = new Properties();
+        try (FileInputStream fin = new FileInputStream(file)) {
+            properties.load(fin);
         }
-        this.properties = keysmapProperties;
-        
+
         for (String key : properties.stringPropertyNames()) {
             if (key.startsWith(TRUSTFILE_PREFIX)) {
                 String artifact = key.substring(TRUSTFILE_PREFIX.length() + 1);
-                final String file = properties.getProperty(key);
-                System.out.println("Loading trusted keys for " + artifact + " from " + file);
-                
+                final String f = properties.getProperty(key);
+                System.out.println("Loading trusted keys for " + artifact + " from " + f);
+
                 // File names are relative to the property file
-                File pubFile = new File(file);
+                File pubFile = new File(f);
                 if (!pubFile.isAbsolute()) {
-                    pubFile = new File(keysmapFile.getParentFile(), file);
+                    pubFile = new File(file.getParentFile(), f);
                 }
-                
+
                 for (PGPPublicKey publicKey : parsePublicKeys(pubFile)) {
                     //System.out.println("# Id: " + String.format("0x%X", publicKey.getKeyID()));
                     //System.out.println(FINGERPRINT_PREFIX + "." + Hex.toHexString(publicKey.getFingerprint()) + "=" + artifact);
                     String keyKey = FINGERPRINT_PREFIX + "." + Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
-                    
+
                     String oldValue = properties.getProperty(keyKey);
                     String newValue = artifact;
                     if (oldValue != null) {
@@ -91,8 +90,14 @@ public class KeysMap {
                 }
             }
         }
+
+        return new KeysMap(properties);
     }
-    
+
+    private KeysMap(Properties properties) {
+        this.properties = properties;
+    }
+
     public void print() {
         for (String key : properties.stringPropertyNames()) {
             System.out.println(key + "=" + properties.getProperty(key));
@@ -104,7 +109,7 @@ public class KeysMap {
         String fingerprint = Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
         System.out.println("fingerprint: " + fingerprint);
         String allowedPath = properties.getProperty(FINGERPRINT_PREFIX + "." + fingerprint);
-        
+
         if (allowedPath == null) {
             System.err.println("No entry for " + fingerprint);
             return false;
@@ -119,13 +124,13 @@ public class KeysMap {
             }
             return allowed;
         }
-        
+
     }
-    
+
     private static final String BEGIN_PUBLIC_KEY = "-----BEGIN PGP PUBLIC KEY BLOCK-----";
     private static final String END_PUBLIC_KEY = "-----END PGP PUBLIC KEY BLOCK-----";
 
-    private List<PGPPublicKey> parsePublicKeys(File file) throws IOException, PGPException {
+    private static List<PGPPublicKey> parsePublicKeys(File file) throws IOException, PGPException {
         final ArrayList<PGPPublicKey> results = new ArrayList<>();
         BufferedReader reader = null;
         try {
@@ -144,11 +149,11 @@ public class KeysMap {
                         throw new IOException("Premature end of file, expected " + END_PUBLIC_KEY);
                     }
                     buff.append(END_PUBLIC_KEY).append("\n");
-                    
+
                     // Now parse the key
                     InputStream keyIn = PGPUtil.getDecoderStream(new ByteArrayInputStream(buff.toString().getBytes()));
                     PGPPublicKeyRingCollection pgpRing = new PGPPublicKeyRingCollection(keyIn, new BcKeyFingerprintCalculator());
-                    
+
                     Iterator<PGPPublicKeyRing> keyRings = pgpRing.getKeyRings();
                     while (keyRings.hasNext()) {
                         PGPPublicKeyRing ring = keyRings.next();
@@ -174,7 +179,7 @@ public class KeysMap {
 
     public boolean isValidDigest(String uri, byte[] data) {
         final boolean result;
-        
+
         try {
             MessageDigest md;
             md = MessageDigest.getInstance("SHA-256");
@@ -191,7 +196,7 @@ public class KeysMap {
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException(ex);
         }
-        
+
         return result;
     }
 }
