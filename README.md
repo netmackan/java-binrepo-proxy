@@ -19,6 +19,9 @@ target.host=repo.maven.apache.org
 target.port=443
 
 trust.map.file=../trust/keysmap.properties
+
+cache.keys.folder=../cache/keys
+cache.keys.server=hkps://hkps.pool.sks-keyservers.net
 ```
 
 
@@ -82,9 +85,7 @@ TRUSTFILE./maven2/log4j/log4j/=apache-logging-KEYS.asc
 - No HTTPS/TLS support for incoming connections yet
 - Format of the keysmap will likely change
 - No automagic reload of the keysmap. It is read on startup, any changes in it and you will have to restart the proxy
-- No option yet to configure the location of the key cache
 - No option yet to enable/disable fetching keys from a key server
-- No option yet to choose key server(s)
 - Logging needs improvement
 - Information on why the artifact was refused not visible on the client side (in the future: the status string should say "Invalid signature for artifact URI", "No signature for artifact [URI] with digest 0x[DIGEST]" etc
 
