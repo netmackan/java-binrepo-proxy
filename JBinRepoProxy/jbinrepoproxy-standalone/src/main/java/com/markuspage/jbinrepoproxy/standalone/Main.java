@@ -115,9 +115,8 @@ public class Main {
         System.out.println("Will proxy to " +  host);
         
         // Keys cache
-        File cachePath = new File("/tmp/"); // TODO
-        String keyServer = "hkps://hkps.pool.sks-keyservers.net"; // TODO
-        final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, keyServer);
+        File cachePath = config.getCacheKeysFolder();
+        final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, config.getCacheKeysServer());
 
         new StartableReverseProxy().start(config.getPort(), host, new ElementalReverseProxy.RequestFilter() {
             @Override

@@ -34,6 +34,8 @@ public class Configuration {
     private static final String PROPERTY_TARGET_PORT = "target.port";
     private static final String PROPERTY_TARGET_SCHEME = "target.scheme";
     private static final String PROPERTY_TRUST_MAP_FILE = "trust.map.file";
+    private static final String PROPERTY_CACHE_KEYS_FOLDER = "cache.keys.folder";
+    private static final String PROPERTY_CACHE_KEYS_SERVER = "cache.keys.server";
 
     private final File file;
     private final String host;
@@ -42,6 +44,8 @@ public class Configuration {
     private final int targetPort;
     private final String targetScheme;
     private final File trustMapFile;
+    private final File cacheKeysFolder;
+    private final String cacheKeysServer;
 
     public static Configuration fromFile(File file) throws FileNotFoundException, IOException {
         // Load configuration properties
@@ -67,10 +71,20 @@ public class Configuration {
             trustMapFile = new File(file.getParentFile().getAbsolutePath(), f.getPath());
         }
 
-        return new Configuration(file, targetHost, port, targetScheme, targetHost, targetPort, trustMapFile);
+        // Cache keys folder
+        final File cacheKeysFolder;
+        f = new File(config.getProperty(PROPERTY_CACHE_KEYS_FOLDER));
+        if (f.isAbsolute()) {
+            cacheKeysFolder = f;
+        } else {
+            cacheKeysFolder = new File(file.getParentFile().getAbsolutePath(), f.getPath());
+        }
+        final String cacheKeysServer = config.getProperty(PROPERTY_CACHE_KEYS_SERVER);
+
+        return new Configuration(file, targetHost, port, targetScheme, targetHost, targetPort, trustMapFile, cacheKeysFolder, cacheKeysServer);
     }
 
-    public Configuration(final File file, final String host, final int port, final String targetScheme, final String targetHost, final int targetPort, final File trustMapFile) {
+    public Configuration(final File file, final String host, final int port, final String targetScheme, final String targetHost, final int targetPort, final File trustMapFile, final File cacheKeysFolder, final String cacheKeysServer) {
         this.file = file;
         this.host = host;
         this.port = port;
@@ -78,6 +92,8 @@ public class Configuration {
         this.targetPort = targetPort;
         this.targetScheme = targetScheme;
         this.trustMapFile = trustMapFile;
+        this.cacheKeysFolder = cacheKeysFolder;
+        this.cacheKeysServer = cacheKeysServer;
     }
 
     public String getHost() {
@@ -102,6 +118,14 @@ public class Configuration {
 
     public File getTrustMapFile() {
         return trustMapFile;
+    }
+
+    public File getCacheKeysFolder() {
+        return cacheKeysFolder;
+    }
+
+    public String getCacheKeysServer() {
+        return cacheKeysServer;
     }
 
     @Override
