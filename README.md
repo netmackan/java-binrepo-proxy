@@ -57,7 +57,7 @@ TRUSTFILE./maven2/org/apache/apache/=apache-maven-KEYS.asc
 # maven-toolchain was signed by a different key, manually specify that one
 FINGERPRINT.2E795B761F5B3B39CA46E48C66F196CA727DE1C5=/maven2/org/apache/maven/maven-toolchain/1.0/
 
-# Old Maven dependencies without signatures, harcode the digests
+# Old Maven dependencies without signatures, hardcode the digests
 TRUSTEDDIGEST./maven2/org/apache/maven/maven-parent/5/maven-parent-5.pom=5d7c2a229173155823c45380332f221bf0d27e52c9db76e9217940306765bd50
 
 # Trust Commons Logging keys for Log4j
@@ -71,7 +71,7 @@ TRUSTFILE./maven2/log4j/log4j/=apache-logging-KEYS.asc
 - No automagic reload of the keysmap. It is read on startup, any changes in it and you will have to restart the proxy
 - No option yet to configure the location of the key cache
 - No option yet to enable/disable fetching keys from a key server
-- No option yet to chose key server(s)
+- No option yet to choose key server(s)
 - Logging needs improvement
 - Information on why the artifact was refused not visible on the client side (in the future: the status string should say "Invalid signature for artifact URI", "No signature for artifact [URI] with digest 0x[DIGEST]" etc
 
