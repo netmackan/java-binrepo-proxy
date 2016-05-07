@@ -126,9 +126,6 @@ public class Main {
                 } else if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
                     results = true;
                 } else {
-                    
-                    //TODO: I want to re-use the existing connection
-                    
                     HttpProcessor httpproc = HttpProcessorBuilder.create()
                     .add(new RequestContent())
                     .add(new RequestTargetHost())
