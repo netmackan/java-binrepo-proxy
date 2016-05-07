@@ -32,6 +32,9 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.ConnectionReuseStrategy;
@@ -40,6 +43,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.examples.ElementalReverseProxy;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -91,19 +95,18 @@ public class Main {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, FileNotFoundException, PGPException {
-        if (args.length < 3) {
-            System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE> <PORT> <TARGET HOSTNAME> [TARGET PORT]");
-            System.err.println("Example: jbinreporoxy-standalone trust/keysmap.properties 8888 repo1.example.com 80");
+        if (args.length < 5) {
+            System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE> <PORT> <TARGET HOSTNAME> <TARGET PORT> <TARGET SCHEME>");
+            System.err.println("Example 1: jbinreporoxy-standalone trust/keysmap.properties 8888 repo1.example.com 80 http");
+            System.err.println("Example 2: jbinreporoxy-standalone trust/keysmap.properties 8888 repo1.example.com 443 https");
             System.exit(1);
         }
         final File keysmapFile = new File(args[0]);
         final int port = Integer.parseInt(args[1]);
         final String targetHost = args[2];
-        int targetPort = 80;
-        if (args.length > 2) {
-            targetPort = Integer.parseInt(args[3]);
-        }
+        final int targetPort = Integer.parseInt(args[3]);
         final int ttargetPort = targetPort;
+        final String targetScheme = args[4];
         
         // Keys map
         System.out.println("Using keys map file " + keysmapFile.getAbsolutePath());
@@ -111,14 +114,14 @@ public class Main {
         keysMap.load(keysmapFile);
         keysMap.print();
 
-        System.out.println("Will proxy to " + targetHost + ":" + targetPort);
+        System.out.println("Will proxy to " + targetScheme + "://" + targetHost + ":" + targetPort);
         
         // Keys cache
         File cachePath = new File("/tmp/"); // TODO
         String keyServer = "hkps://hkps.pool.sks-keyservers.net"; // TODO
         final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, keyServer);
 
-        new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort), new ElementalReverseProxy.RequestFilter() {
+        new StartableReverseProxy().start(port, new HttpHost(targetHost, targetPort, targetScheme), new ElementalReverseProxy.RequestFilter() {
             @Override
             public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
                 final String uri = request.getRequestLine().getUri();
@@ -126,12 +129,15 @@ public class Main {
                 boolean results;
                 
                 // Always accept signature files and digests
-                if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
+                if (targetResponse.getStatusLine().getStatusCode() == 404) {
+                    System.out.println("File not found: " + uri);
+                    results = false;
+                } else if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
                     results = true;
                 } else {
                     
                     //TODO: I want to re-use the existing connection
-                
+                    
                     HttpProcessor httpproc = HttpProcessorBuilder.create()
                     .add(new RequestContent())
                     .add(new RequestTargetHost())
@@ -142,18 +148,36 @@ public class Main {
                     HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
                     HttpCoreContext coreContext = HttpCoreContext.create();
-                    HttpHost host = new HttpHost(targetHost, ttargetPort);
+                    HttpHost host = new HttpHost(targetHost, ttargetPort, targetScheme);
                     coreContext.setTargetHost(host);
+                    System.out.println("host: " + host);
 
                     try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
                         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
                         
                         if (!conn.isOpen()) {
-                            Socket socket = new Socket(host.getHostName(), host.getPort());
+                            Socket socket;
+                            if (host.getSchemeName().equals("https")) {
+                                SSLContext sslcontext = SSLContexts.createSystemDefault();
+                                SocketFactory sf = sslcontext.getSocketFactory();
+                                socket = (SSLSocket) sf.createSocket(host.getHostName(), 443);
+            //                    // Enforce TLS and disable SSL
+            //                    socket.setEnabledProtocols(new String[] {
+            //                            "TLSv1",
+            //                            "TLSv1.1",
+            //                            "TLSv1.2" });
+            //                    // Enforce strong ciphers
+            //                    socket.setEnabledCipherSuites(new String[] {
+            //                            "TLS_RSA_WITH_AES_256_CBC_SHA",
+            //                            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+            //                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" });
+                            } else {
+                                socket = new Socket(host.getHostName(), host.getPort());
+                            }
                             conn.bind(socket);
                         }
                         
-                        BasicHttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
+                        HttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
                         System.out.println("Will fetch " + ascRequest.getRequestLine());
                         httpexecutor.preProcess(ascRequest, httpproc, context);
                         HttpResponse ascResponse = httpexecutor.execute(ascRequest, conn, context);

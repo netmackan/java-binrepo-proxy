@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
@@ -43,6 +46,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
@@ -258,7 +262,24 @@ public class ElementalReverseProxy {
                     inconn.bind(insocket);
 
                     // Set up outgoing HTTP connection
-                    final Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort());
+                    final Socket outsocket;
+                    if (this.target.getSchemeName().equals("https")) {
+                        SSLContext sslcontext = SSLContexts.createSystemDefault();
+                        SocketFactory sf = sslcontext.getSocketFactory();
+                        outsocket = (SSLSocket) sf.createSocket(this.target.getHostName(), 443);
+    //                    // Enforce TLS and disable SSL
+    //                    socket.setEnabledProtocols(new String[] {
+    //                            "TLSv1",
+    //                            "TLSv1.1",
+    //                            "TLSv1.2" });
+    //                    // Enforce strong ciphers
+    //                    socket.setEnabledCipherSuites(new String[] {
+    //                            "TLS_RSA_WITH_AES_256_CBC_SHA",
+    //                            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+    //                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" });
+                    } else {
+                        outsocket = new Socket(this.target.getHostName(), this.target.getPort());
+                    }
                     final DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(bufsize);
                     outconn.bind(outsocket);
                     System.out.println("Outgoing connection to " + outsocket.getInetAddress());
@@ -323,6 +344,7 @@ public class ElementalReverseProxy {
                 System.err.println("Client closed connection");
             } catch (final IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
+                ex.printStackTrace();
             } catch (final HttpException ex) {
                 System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
             } finally {
