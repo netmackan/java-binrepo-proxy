@@ -9,9 +9,22 @@ The purpose is to solve the lack of proper signature verification support in Mav
 
 ## Usage
 
+Configure the proxy in conf/jbinrepoproxy-standalone.properties:
+```
+standalone.host=127.0.0.1
+standalone.port=8888
+
+target.scheme=https
+target.host=repo.maven.apache.org
+target.port=443
+
+trust.map.file=../trust/keysmap.properties
+```
+
+
 Start the proxy
 ```
-jbinrepoproxy-standalone trust/keysmap.properties 8888 repo.maven.apache.org 80
+jbinrepoproxy-standalone conf/jbinrepoproxy-standalone.properties
 ```
 
 Configure your ~/.m2/settings.xml to use the proxy instead of Central
