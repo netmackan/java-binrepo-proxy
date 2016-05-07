@@ -145,43 +145,12 @@ public class Main {
                     .add(new RequestUserAgent("Test/1.1"))
                     .add(new RequestExpectContinue(true)).build();
 
-                    HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-
-                    HttpCoreContext coreContext = HttpCoreContext.create();
-                    HttpHost host = new HttpHost(targetHost, ttargetPort, targetScheme);
-                    coreContext.setTargetHost(host);
-                    System.out.println("host: " + host);
-
-                    try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
-                        ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-                        
-                        if (!conn.isOpen()) {
-                            Socket socket;
-                            if (host.getSchemeName().equals("https")) {
-                                SSLContext sslcontext = SSLContexts.createSystemDefault();
-                                SocketFactory sf = sslcontext.getSocketFactory();
-                                socket = (SSLSocket) sf.createSocket(host.getHostName(), 443);
-            //                    // Enforce TLS and disable SSL
-            //                    socket.setEnabledProtocols(new String[] {
-            //                            "TLSv1",
-            //                            "TLSv1.1",
-            //                            "TLSv1.2" });
-            //                    // Enforce strong ciphers
-            //                    socket.setEnabledCipherSuites(new String[] {
-            //                            "TLS_RSA_WITH_AES_256_CBC_SHA",
-            //                            "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-            //                            "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" });
-                            } else {
-                                socket = new Socket(host.getHostName(), host.getPort());
-                            }
-                            conn.bind(socket);
-                        }
-                        
+                    try {
                         HttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
                         System.out.println("Will fetch " + ascRequest.getRequestLine());
-                        httpexecutor.preProcess(ascRequest, httpproc, context);
-                        HttpResponse ascResponse = httpexecutor.execute(ascRequest, conn, context);
-                        httpexecutor.postProcess(ascResponse, httpproc, context);
+                        httpexecutor1.preProcess(ascRequest, httpproc, context);
+                        HttpResponse ascResponse = httpexecutor1.execute(ascRequest, conn1, context);
+                        httpexecutor1.postProcess(ascResponse, httpproc, context);
                         
                         System.out.println("<< asc response: " + ascResponse.getStatusLine());
                         if (ascResponse.getStatusLine().getStatusCode() == 404) {
@@ -190,24 +159,17 @@ public class Main {
                         } else {
                             String signature = EntityUtils.toString(ascResponse.getEntity());
                             System.out.println(signature);
-
                             results = verifyPGPSignature(uri, targetBody, signature);
-
-
-                            System.out.println("==============");
-                            if (!connStrategy.keepAlive(ascResponse, context)) {
-                                conn.close();
-                            } else {
-                                System.out.println("Connection kept alive...");
-                            }
                         }
+                        
+                        final boolean keepalive = connStrategy1.keepAlive(ascResponse, context);
+                        context.setAttribute(ElementalReverseProxy.HTTP_CONN_KEEPALIVE, keepalive);
                     } catch (HttpException | IOException ex) {
                         ex.printStackTrace();
                         results = false;
                     }
                 }
-                
-                
+
                 return results;
             }
             

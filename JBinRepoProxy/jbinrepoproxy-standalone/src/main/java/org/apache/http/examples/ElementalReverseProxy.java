@@ -79,7 +79,7 @@ public class ElementalReverseProxy {
 
     private static final String HTTP_IN_CONN = "http.proxy.in-conn";
     private static final String HTTP_OUT_CONN = "http.proxy.out-conn";
-    private static final String HTTP_CONN_KEEPALIVE = "http.proxy.conn-keepalive";
+    public static final String HTTP_CONN_KEEPALIVE = "http.proxy.conn-keepalive";
 
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
@@ -172,6 +172,9 @@ public class ElementalReverseProxy {
             System.out.println("Read body of " + targetBody.length + " bytes");
             EntityUtils.consume(targetResponse.getEntity());
             
+            boolean keepalive = this.connStrategy.keepAlive(response, context);
+            context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));
+            
             if (filter.isAcceptable(request, targetResponse, targetBody, conn, context, this.httpproc, this.httpexecutor, this.connStrategy)) {
                 
                 // Remove hop-by-hop headers
@@ -198,9 +201,6 @@ public class ElementalReverseProxy {
             }
 
             System.out.println("<< Response: " + response.getStatusLine());
-
-            final boolean keepalive = this.connStrategy.keepAlive(response, context);
-            context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));
         }
 
     }
