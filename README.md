@@ -66,7 +66,7 @@ TRUSTFILE./maven2/log4j/log4j/=apache-logging-KEYS.asc
 
 ## Known Limitations
 
-- No HTTPS/TLS support yet
+- No HTTPS/TLS support for incoming connections yet
 - Format of the keysmap will likely change
 - No automagic reload of the keysmap. It is read on startup, any changes in it and you will have to restart the proxy
 - No option yet to configure the location of the key cache
