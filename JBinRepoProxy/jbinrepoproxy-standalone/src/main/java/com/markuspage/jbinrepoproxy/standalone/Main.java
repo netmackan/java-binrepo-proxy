@@ -218,58 +218,6 @@ public class Main {
         
         HttpCoreTransportServer server = new HttpCoreTransportServer(config.getHost(), config.getPort(), host.getSchemeName(), host.getHostName(), host.getPort());
         server.start(handler);
-        
-        
-//        new StartableReverseProxy().start(config.getPort(), host, new ElementalReverseProxy.RequestFilter() {
-//            @Override
-//            public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
-//                final String uri = request.getRequestLine().getUri();
-//                System.out.println("Is acceptable?: " + uri);
-//                boolean results;
-//                
-//                // Always accept signature files and digests
-//                if (targetResponse.getStatusLine().getStatusCode() == 404) {
-//                    System.out.println("File not found: " + uri);
-//                    results = false;
-//                } else if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
-//                    results = true;
-//                } else {
-//                    HttpProcessor httpproc = HttpProcessorBuilder.create()
-//                    .add(new RequestContent())
-//                    .add(new RequestTargetHost())
-//                    .add(new RequestConnControl())
-//                    .add(new RequestUserAgent("Test/1.1"))
-//                    .add(new RequestExpectContinue(true)).build();
-//
-//                    try {
-//                        HttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
-//                        System.out.println("Will fetch " + ascRequest.getRequestLine());
-//                        httpexecutor1.preProcess(ascRequest, httpproc, context);
-//                        HttpResponse ascResponse = httpexecutor1.execute(ascRequest, conn1, context);
-//                        httpexecutor1.postProcess(ascResponse, httpproc, context);
-//                        
-//                        System.out.println("<< asc response: " + ascResponse.getStatusLine()); else {
-//                            String signature = EntityUtils.toString(ascResponse.getEntity());
-//                            System.out.println(signature);
-//                            results = verifyPGPSignature(uri, targetBody, signature);
-//                        }
-//                        if (ascResponse.getStatusLine().getStatusCode() == 404) {
-//                            System.err.println("Signature file not found, checking for trusted digest instead");
-//                            results = verifyDigest(uri, targetBody);
-//                        }
-//                        
-//                        final boolean keepalive = connStrategy1.keepAlive(ascResponse, context);
-//                        context.setAttribute(ElementalReverseProxy.HTTP_CONN_KEEPALIVE, keepalive);
-//                    } catch (HttpException | IOException ex) {
-//                        ex.printStackTrace();
-//                        results = false;
-//                    }
-//                }
-//
-//                return results;
-//            }
-//            
-//        });
     }
     
 }
