@@ -14,22 +14,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.apache.http.examples;
-
-import java.io.IOException;
-import org.apache.http.HttpHost;
+package com.markuspage.jbinrepoproxy.standalone.transport.spi;
 
 /**
- * Extends the proxy implementation so that it can be started.
+ * Interface for fetching files using the transport provider.
  *
  * @author Markus Kilås
  */
-public class StartableReverseProxy extends ElementalReverseProxy {
-    
-    public void start(final int port, final HttpHost target, ElementalReverseProxy.RequestFilter filter) throws IOException {
-        final Thread t = new StartableReverseProxy.RequestListenerThread(8888, target, filter);
-        t.setDaemon(false);
-        t.start();
-    }
+public interface TransportClient {
+
+    public TransportFetch httpGetTheFile();
+
+    public TransportFetch httpGetOtherFile(String uri);
     
 }

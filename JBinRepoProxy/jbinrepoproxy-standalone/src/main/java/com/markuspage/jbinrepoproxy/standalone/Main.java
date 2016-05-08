@@ -17,10 +17,15 @@
 package com.markuspage.jbinrepoproxy.standalone;
 
 import com.github.s4u.plugins.PGPKeysCache;
+import com.markuspage.jbinrepoproxy.standalone.transport.httpcore.HttpCoreTransportServer;
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportRequest;
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportResult;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-import org.apache.http.examples.StartableReverseProxy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -33,24 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.examples.ElementalReverseProxy;
-import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpProcessorBuilder;
-import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.util.EntityUtils;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPObjectFactory;
 import org.bouncycastle.openpgp.PGPPublicKey;
@@ -118,53 +106,57 @@ public class Main {
         File cachePath = config.getCacheKeysFolder();
         final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, config.getCacheKeysServer());
 
-        new StartableReverseProxy().start(config.getPort(), host, new ElementalReverseProxy.RequestFilter() {
+        
+        TransportHandler handler = new TransportHandler() {
             @Override
-            public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
-                final String uri = request.getRequestLine().getUri();
+            public TransportResult handleRequest(String uri, TransportRequest request, TransportClient client) {
                 System.out.println("Is acceptable?: " + uri);
-                boolean results;
-                
-                // Always accept signature files and digests
-                if (targetResponse.getStatusLine().getStatusCode() == 404) {
-                    System.out.println("File not found: " + uri);
-                    results = false;
-                } else if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
-                    results = true;
-                } else {
-                    HttpProcessor httpproc = HttpProcessorBuilder.create()
-                    .add(new RequestContent())
-                    .add(new RequestTargetHost())
-                    .add(new RequestConnControl())
-                    .add(new RequestUserAgent("Test/1.1"))
-                    .add(new RequestExpectContinue(true)).build();
+                try {
+                    final TransportResult result;
 
-                    try {
-                        HttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
-                        System.out.println("Will fetch " + ascRequest.getRequestLine());
-                        httpexecutor1.preProcess(ascRequest, httpproc, context);
-                        HttpResponse ascResponse = httpexecutor1.execute(ascRequest, conn1, context);
-                        httpexecutor1.postProcess(ascResponse, httpproc, context);
-                        
-                        System.out.println("<< asc response: " + ascResponse.getStatusLine());
-                        if (ascResponse.getStatusLine().getStatusCode() == 404) {
-                            System.err.println("Signature file not found, checking for trusted digest instead");
-                            results = verifyDigest(uri, targetBody);
-                        } else {
-                            String signature = EntityUtils.toString(ascResponse.getEntity());
+                    // Always accept signature files and digests
+                    if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
+                        result = TransportResult.SUCCESS;
+                    } else {
+                        // TODO: Check local cache first
+                        // We need to fetch the signature file
+                        TransportFetch signatureFetch = client.httpGetOtherFile(uri + ".asc");
+                        if (signatureFetch.getResponseCode() == 200) {
+                            String signature = new String(signatureFetch.getContent());
                             System.out.println(signature);
-                            results = verifyPGPSignature(uri, targetBody, signature);
-                        }
-                        
-                        final boolean keepalive = connStrategy1.keepAlive(ascResponse, context);
-                        context.setAttribute(ElementalReverseProxy.HTTP_CONN_KEEPALIVE, keepalive);
-                    } catch (HttpException | IOException ex) {
-                        ex.printStackTrace();
-                        results = false;
-                    }
-                }
 
-                return results;
+                            TransportFetch theFetch = client.httpGetTheFile();
+                            if (theFetch.getResponseCode() != 200) {
+                                result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
+                            } else {
+                                if (verifyPGPSignature(uri, theFetch.getContent(), signature)) {
+                                    result = TransportResult.SUCCESS;
+                                } else {
+                                    result = new TransportResult(403, "Signature verification failed");
+                                }
+                            }
+                        } else if (signatureFetch.getResponseCode() == 404) {
+                            System.err.println("Signature file not found, checking for trusted digest instead");
+                            TransportFetch theFetch = client.httpGetTheFile();
+                            if (theFetch.getResponseCode() != 200) {
+                                result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
+                            } else {
+                                if (verifyDigest(uri, theFetch.getContent())) {
+                                    result = TransportResult.SUCCESS;
+                                } else {
+                                    result = new TransportResult(403, "No signature");
+                                }
+                            }
+                        } else {
+                            result = new TransportResult(403, "Signature fetch failed (" + signatureFetch.getResponseCode() + "): " + signatureFetch.getErrorMessage());
+                        }
+                    }
+                    return result;
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    return new TransportResult(500, ex.getMessage());
+                }
+                
             }
             
             private boolean verifyPGPSignature(String uri, byte[] data, String signature) throws IOException {
@@ -176,19 +168,19 @@ public class Main {
                         throw new IOException("Missing signature");
                     }
                     PGPSignature pgpSignature = sigList.get(0);
-                    
+
                     PGPPublicKey publicKey = pgpKeysCache.getKey(pgpSignature.getKeyID());
-                    
+
                     if (!keysMap.isValidKey(uri, publicKey)) {
                         String msg = String.format("%s=0x%X", uri, publicKey.getKeyID());
                         String keyUrl = pgpKeysCache.getUrlForShowKey(publicKey.getKeyID());
                         getLog().error(String.format("Not allowed artifact %s and keyID:\n\t%s\n\t%s\n", uri, msg, keyUrl));
                         return false;
                     }
-                    
+
                     pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
                     pgpSignature.update(data);
-                    
+
                     String msgFormat = "%s PGP Signature %s\n       KeyId: 0x%X UserIds: %s";
                     if (pgpSignature.verify()) {
                         getLog().info(String.format(msgFormat, uri,
@@ -214,15 +206,70 @@ public class Main {
                     throw new IOException(ex);
                 }
             }
-            
+
             private boolean verifyDigest(String uri, byte[] data) {
                 return keysMap.isValidDigest(uri, data);
             }
-
+            
             private Log getLog() {
                 return LOG;
             }
-        });
+        };
+        
+        HttpCoreTransportServer server = new HttpCoreTransportServer(config.getHost(), config.getPort(), host.getSchemeName(), host.getHostName(), host.getPort());
+        server.start(handler);
+        
+        
+//        new StartableReverseProxy().start(config.getPort(), host, new ElementalReverseProxy.RequestFilter() {
+//            @Override
+//            public boolean isAcceptable(HttpRequest request, HttpResponse targetResponse, byte[] targetBody, HttpClientConnection conn1, HttpContext context, HttpProcessor httpproc1, HttpRequestExecutor httpexecutor1, ConnectionReuseStrategy connStrategy1) throws HttpException, IOException {
+//                final String uri = request.getRequestLine().getUri();
+//                System.out.println("Is acceptable?: " + uri);
+//                boolean results;
+//                
+//                // Always accept signature files and digests
+//                if (targetResponse.getStatusLine().getStatusCode() == 404) {
+//                    System.out.println("File not found: " + uri);
+//                    results = false;
+//                } else if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
+//                    results = true;
+//                } else {
+//                    HttpProcessor httpproc = HttpProcessorBuilder.create()
+//                    .add(new RequestContent())
+//                    .add(new RequestTargetHost())
+//                    .add(new RequestConnControl())
+//                    .add(new RequestUserAgent("Test/1.1"))
+//                    .add(new RequestExpectContinue(true)).build();
+//
+//                    try {
+//                        HttpRequest ascRequest = new BasicHttpRequest("GET", request.getRequestLine().getUri() + ".asc");
+//                        System.out.println("Will fetch " + ascRequest.getRequestLine());
+//                        httpexecutor1.preProcess(ascRequest, httpproc, context);
+//                        HttpResponse ascResponse = httpexecutor1.execute(ascRequest, conn1, context);
+//                        httpexecutor1.postProcess(ascResponse, httpproc, context);
+//                        
+//                        System.out.println("<< asc response: " + ascResponse.getStatusLine()); else {
+//                            String signature = EntityUtils.toString(ascResponse.getEntity());
+//                            System.out.println(signature);
+//                            results = verifyPGPSignature(uri, targetBody, signature);
+//                        }
+//                        if (ascResponse.getStatusLine().getStatusCode() == 404) {
+//                            System.err.println("Signature file not found, checking for trusted digest instead");
+//                            results = verifyDigest(uri, targetBody);
+//                        }
+//                        
+//                        final boolean keepalive = connStrategy1.keepAlive(ascResponse, context);
+//                        context.setAttribute(ElementalReverseProxy.HTTP_CONN_KEEPALIVE, keepalive);
+//                    } catch (HttpException | IOException ex) {
+//                        ex.printStackTrace();
+//                        results = false;
+//                    }
+//                }
+//
+//                return results;
+//            }
+//            
+//        });
     }
     
 }

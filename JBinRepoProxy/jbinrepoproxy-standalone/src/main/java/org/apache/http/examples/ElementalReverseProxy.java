@@ -299,7 +299,7 @@ public class ElementalReverseProxy {
         }
     }
 
-    static class ProxyThread extends Thread {
+    public static class ProxyThread extends Thread {
 
         private final HttpService httpservice;
         private final HttpServerConnection inconn;
