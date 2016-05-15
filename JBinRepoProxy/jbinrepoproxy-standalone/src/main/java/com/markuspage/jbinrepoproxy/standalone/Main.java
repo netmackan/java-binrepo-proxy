@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -113,9 +114,18 @@ public class Main {
                 System.out.println("Is acceptable?: " + uri);
                 try {
                     final TransportResult result;
+                    
+                    // Parse as URL
+                    final URL url = new URL("http://example.com" + uri);
+                    final String path = url.getPath();
 
-                    // Always accept signature files and digests
-                    if (uri.endsWith(".asc") || uri.endsWith(".sha1") || uri.endsWith(".sha256")) {
+                    // Always accept signature files, digests, metadata, indexes and the root page
+                    if (path.endsWith(".asc") // Signature
+                            || path.endsWith(".sha1") || path.endsWith(".sha256") // Digests
+                            || path.startsWith("/maven2/.meta/") || path.startsWith("/maven2/.index/") // Metadata and indexes
+                            || path.endsWith("/maven-metadata.xml") // Repository metadata
+                            || path.endsWith("/") // Index page
+                            ) {
                         result = TransportResult.SUCCESS;
                     } else {
                         // TODO: Check local cache first
