@@ -31,6 +31,12 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -71,6 +77,9 @@ public class Main {
     }
     
     private static final boolean failWeakSignature = true;
+
+    private static File trustMapFile;
+    private static volatile KeysMap keysMap;
     
     /**
      * @param args the command line arguments
@@ -95,8 +104,9 @@ public class Main {
         final Configuration config = Configuration.fromFile(file);
         
         // Keys map
-        System.out.println("Using keys map file " + config.getTrustMapFile());
-        final KeysMap keysMap = KeysMap.fromFile(config.getTrustMapFile());
+        trustMapFile = config.getTrustMapFile();
+        System.out.println("Using keys map file " + trustMapFile);
+        keysMap = KeysMap.fromFile(trustMapFile);
         keysMap.print();
 
         // Target
@@ -231,6 +241,40 @@ public class Main {
         SunTransportServer server = new SunTransportServer(InetAddress.getByName(config.getHost()), config.getPort(), host.getSchemeName() + "://" + host.getHostName() + ":" + host.getPort());
         //HttpCoreTransportServer server = new HttpCoreTransportServer(config.getHost(), config.getPort(), host.getSchemeName(), host.getHostName(), host.getPort());
         server.start(handler);
+        
+        // Watch for changes in the trust directory
+        WatchService watcher = FileSystems.getDefault().newWatchService();
+        Path dir = config.getTrustMapFile().toPath().getParent();
+        dir.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY);
+        
+        for (;;) {
+            WatchKey key;
+            try {
+                key = watcher.take();
+            } catch (InterruptedException ex) {
+                return;
+            }
+            
+            for (WatchEvent<?> event : key.pollEvents()) {
+                WatchEvent.Kind<?> kind = event.kind();
+                if (kind == StandardWatchEventKinds.OVERFLOW) {
+                    continue;
+                }
+
+                // Reload the keys map
+                try {
+                    keysMap = KeysMap.fromFile(trustMapFile);
+                } catch (IOException ex) {
+                    System.err.println(ex);
+                    continue;
+                }
+                
+                boolean valid = key.reset();
+                if (!valid) {
+                    break;
+                }
+            }
+        }
     }
-    
+
 }
