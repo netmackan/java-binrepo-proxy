@@ -55,6 +55,7 @@ public class Configuration {
         }
 
         // Bind address
+        final String host = config.getProperty(PROPERTY_STANDALONE_HOST);
         final int port = Integer.parseInt(config.getProperty(PROPERTY_STANDALONE_PORT));
 
         // Target address
@@ -81,7 +82,7 @@ public class Configuration {
         }
         final String cacheKeysServer = config.getProperty(PROPERTY_CACHE_KEYS_SERVER);
 
-        return new Configuration(file, targetHost, port, targetScheme, targetHost, targetPort, trustMapFile, cacheKeysFolder, cacheKeysServer);
+        return new Configuration(file, host, port, targetScheme, targetHost, targetPort, trustMapFile, cacheKeysFolder, cacheKeysServer);
     }
 
     public Configuration(final File file, final String host, final int port, final String targetScheme, final String targetHost, final int targetPort, final File trustMapFile, final File cacheKeysFolder, final String cacheKeysServer) {
