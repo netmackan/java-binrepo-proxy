@@ -30,23 +30,24 @@ Start the proxy
 ./bin/jbinrepoproxy-standalone.sh conf/jbinrepoproxy-standalone.properties
 ```
 
-Configure your ~/.m2/settings.xml to use the proxy instead of Central
+Configure your ~/.m2/settings.xml to use the proxy as mirror of EVERYTHING 
+(replace localhost with the server's host name in case the proxy is not running
+ on the same host):
 ```
-<settings...
-  <profiles>
-    <repositories>
-      <repository>
-        <id>central</id>
-        <url>http://localhost:8888/maven2</url>
-      </repository>
-    </repositories>
-    <pluginRepositories>
-      <pluginRepository>
-        <id>central</id>
-        <url>http://localhost:8888/maven2</url>
-      </pluginRepository>
-    </pluginRepositories>
-  </profiles>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                    http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <mirrors>
+        <mirror>
+            <id>verified-central</id>
+            <name>Central through JBinRepoProxy</name>
+            <mirrorOf>*</mirrorOf>
+            <url>http://localhost:8888/maven2</url>
+        </mirror>
+    </mirrors>
+
 </settings>
 ```
 
