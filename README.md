@@ -27,7 +27,7 @@ cache.keys.server=hkps://hkps.pool.sks-keyservers.net
 
 Start the proxy
 ```
-jbinrepoproxy-standalone conf/jbinrepoproxy-standalone.properties
+./bin/jbinrepoproxy-standalone.sh conf/jbinrepoproxy-standalone.properties
 ```
 
 Configure your ~/.m2/settings.xml to use the proxy instead of Central
