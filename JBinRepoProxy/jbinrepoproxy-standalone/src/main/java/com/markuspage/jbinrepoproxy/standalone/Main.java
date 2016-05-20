@@ -17,17 +17,18 @@
 package com.markuspage.jbinrepoproxy.standalone;
 
 import com.github.s4u.plugins.PGPKeysCache;
-import com.markuspage.jbinrepoproxy.standalone.transport.httpcore.HttpCoreTransportServer;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportRequest;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportResult;
+import com.markuspage.jbinrepoproxy.standalone.transport.sun.SunTransportServer;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyManagementException;
@@ -99,7 +100,7 @@ public class Main {
         keysMap.print();
 
         // Target
-        System.out.println("Binding to " + config.getPort());
+        System.out.println("Binding to " + config.getHost() + " with port " + config.getPort());
         final HttpHost host = new HttpHost(config.getTargetHost(), config.getTargetPort(), config.getTargetScheme());
         System.out.println("Will proxy to " +  host);
         
@@ -226,7 +227,9 @@ public class Main {
             }
         };
         
-        HttpCoreTransportServer server = new HttpCoreTransportServer(config.getHost(), config.getPort(), host.getSchemeName(), host.getHostName(), host.getPort());
+        // TODO: Determine which implementation to use and load using factory
+        SunTransportServer server = new SunTransportServer(InetAddress.getByName(config.getHost()), config.getPort(), host.getSchemeName() + "://" + host.getHostName() + ":" + host.getPort());
+        //HttpCoreTransportServer server = new HttpCoreTransportServer(config.getHost(), config.getPort(), host.getSchemeName(), host.getHostName(), host.getPort());
         server.start(handler);
     }
     
