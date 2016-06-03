@@ -83,11 +83,11 @@ TRUSTFILE./maven2/log4j/log4j/=apache-logging-KEYS.asc
 
 ## Known Limitations
 
-- No HTTPS/TLS support for incoming connections yet
 - Format of the keysmap will likely change
 - No option yet to enable/disable fetching keys from a key server
 - Logging needs improvement
 - Information on why the artifact was refused not visible on the client side (in the future: the status string should say "Invalid signature for artifact URI", "No signature for artifact [URI] with digest 0x[DIGEST]" etc
+- No HTTPS/TLS support for incoming connections yet (you can always put Apache HTTP Server or nginx proxy in front)
 
 ## Credits
 - Some code is from the [Verify PGP signatures plugin](https://github.com/s4u/pgpverify-maven-plugin)
