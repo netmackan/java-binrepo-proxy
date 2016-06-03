@@ -55,6 +55,8 @@ import org.bouncycastle.openpgp.PGPSignatureList;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Standalone proxy application.
@@ -63,7 +65,10 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
  */
 public class Main {
 
-    private static final Log LOG = LogFactory.getLog(Main.class);
+    /** Logger for this class. */
+    private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+    private static final Log COMMONS_LOG = LogFactory.getLog(Main.class);
     
     private static final Map<Integer, String> WEAK_SIGALGS = new HashMap<>();
     
@@ -105,24 +110,24 @@ public class Main {
         
         // Keys map
         trustMapFile = config.getTrustMapFile();
-        System.out.println("Using keys map file " + trustMapFile);
+        LOG.info("Using keys map file {}", trustMapFile);
         keysMap = KeysMap.fromFile(trustMapFile);
         keysMap.print();
 
         // Target
-        System.out.println("Binding to " + config.getHost() + " with port " + config.getPort());
+        LOG.info("Binding to {} with port {}", config.getHost(), config.getPort());
         final HttpHost host = new HttpHost(config.getTargetHost(), config.getTargetPort(), config.getTargetScheme());
-        System.out.println("Will proxy to " +  host);
+        LOG.info("Will proxy to {}", host);
         
         // Keys cache
         File cachePath = config.getCacheKeysFolder();
-        final PGPKeysCache pgpKeysCache = new PGPKeysCache(LOG, cachePath, config.getCacheKeysServer());
+        final PGPKeysCache pgpKeysCache = new PGPKeysCache(COMMONS_LOG, cachePath, config.getCacheKeysServer());
 
         
         TransportHandler handler = new TransportHandler() {
             @Override
             public TransportResult handleRequest(String uri, TransportRequest request, TransportClient client) {
-                System.out.println("Is acceptable?: " + uri);
+                LOG.info("Is acceptable?: {}", uri);
                 try {
                     final TransportResult result;
                     
@@ -144,7 +149,7 @@ public class Main {
                         TransportFetch signatureFetch = client.httpGetOtherFile(uri + ".asc");
                         if (signatureFetch.getResponseCode() == 200) {
                             String signature = new String(signatureFetch.getContent());
-                            System.out.println(signature);
+                            LOG.debug(signature);
 
                             TransportFetch theFetch = client.httpGetTheFile();
                             if (theFetch.getResponseCode() != 200) {
@@ -157,7 +162,7 @@ public class Main {
                                 }
                             }
                         } else if (signatureFetch.getResponseCode() == 404) {
-                            System.err.println("Signature file not found, checking for trusted digest instead");
+                            LOG.debug("Signature file not found, checking for trusted digest instead");
                             TransportFetch theFetch = client.httpGetTheFile();
                             if (theFetch.getResponseCode() != 200) {
                                 result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
@@ -174,7 +179,7 @@ public class Main {
                     }
                     return result;
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    LOG.error("IO error", ex);
                     return new TransportResult(500, ex.getMessage());
                 }
                 
@@ -233,7 +238,7 @@ public class Main {
             }
             
             private Log getLog() {
-                return LOG;
+                return COMMONS_LOG;
             }
         };
         

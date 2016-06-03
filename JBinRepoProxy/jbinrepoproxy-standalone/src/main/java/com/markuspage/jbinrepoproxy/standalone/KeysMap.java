@@ -33,8 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bouncycastle.openpgp.PGPException;
 import org.bouncycastle.openpgp.PGPPublicKey;
 import org.bouncycastle.openpgp.PGPPublicKeyRing;
@@ -42,6 +40,8 @@ import org.bouncycastle.openpgp.PGPPublicKeyRingCollection;
 import org.bouncycastle.openpgp.PGPUtil;
 import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.util.encoders.Hex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -52,9 +52,12 @@ public class KeysMap {
     private static final String FINGERPRINT_PREFIX = "FINGERPRINT";
     private static final String TRUSTFILE_PREFIX = "TRUSTFILE";
     private static final String DIGEST_PREFIX = "TRUSTEDDIGEST";
+    
+    private static final Logger LOG = LoggerFactory.getLogger(KeysMap.class);
 
     private Properties properties;
 
+    
     public static KeysMap fromFile(File file) throws IOException, FileNotFoundException, PGPException {
 
         final Properties properties = new Properties();
@@ -66,7 +69,7 @@ public class KeysMap {
             if (key.startsWith(TRUSTFILE_PREFIX)) {
                 String artifact = key.substring(TRUSTFILE_PREFIX.length() + 1);
                 final String f = properties.getProperty(key);
-                System.out.println("Loading trusted keys for " + artifact + " from " + f);
+                LOG.info("Loading trusted keys for {} from {}", artifact, f);
 
                 // File names are relative to the property file
                 File pubFile = new File(f);
@@ -100,18 +103,18 @@ public class KeysMap {
 
     public void print() {
         for (String key : properties.stringPropertyNames()) {
-            System.out.println(key + "=" + properties.getProperty(key));
+            LOG.info("{}={}", key, properties.getProperty(key));
         }
     }
 
     public boolean isValidKey(String uri, PGPPublicKey publicKey) {
-        System.out.println("isValidKey(" + uri + ", " + String.format("0x%X", publicKey.getKeyID()) + " ?");
+        LOG.info("isValidKey({}, {}) ?", uri, String.format("0x%X", publicKey.getKeyID()));
         String fingerprint = Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
-        System.out.println("fingerprint: " + fingerprint);
+        LOG.info("fingerprint: {}", fingerprint);
         String allowedPath = properties.getProperty(FINGERPRINT_PREFIX + "." + fingerprint);
 
         if (allowedPath == null) {
-            System.err.println("No entry for " + fingerprint);
+            LOG.info("No entry for {}", fingerprint);
             return false;
         } else {
             boolean allowed = false;
@@ -138,7 +141,7 @@ public class KeysMap {
             String line;
             while ((line = reader.readLine()) != null) {
                 if (!line.equals(BEGIN_PUBLIC_KEY)) {
-                    System.out.println("Skipping: " + line);
+                    LOG.debug("Skipping: {}", line);
                 } else {
                     final StringBuilder buff = new StringBuilder();
                     buff.append(BEGIN_PUBLIC_KEY).append("\n");
@@ -170,7 +173,7 @@ public class KeysMap {
                 try {
                     reader.close();
                 } catch (IOException ex) {
-                    Logger.getLogger(KeysMap.class.getName()).log(Level.SEVERE, null, ex);
+                    LOG.warn("Failed to close reader", ex);
                 }
             }
         }
@@ -186,8 +189,8 @@ public class KeysMap {
             String actualValue = Hex.toHexString(md.digest(data));
             String digestValue = properties.getProperty(DIGEST_PREFIX + "." + uri);
             if (digestValue == null) {
-                System.out.println("No trusted digest for this file: " + uri);
-                System.out.println("TRUSTEDDIGEST." + uri + "=" + actualValue);
+                LOG.info("No trusted digest for this file: {}", uri);
+                LOG.info("TRUSTEDDIGEST.{}={}", uri, actualValue);
                 result = false;
             } else {
                     result = digestValue.equalsIgnoreCase(actualValue);

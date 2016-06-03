@@ -60,6 +60,8 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 import org.apache.http.ssl.SSLContexts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TransportServer implementation using HttpCore for server and client parts.
@@ -67,6 +69,9 @@ import org.apache.http.ssl.SSLContexts;
  * @author Markus Kilås
  */
 public class HttpCoreTransportServer implements TransportServer {
+    
+    /** Logger for this class. */
+    private static final Logger LOG = LoggerFactory.getLogger(HttpCoreTransportServer.class);
 
     private static final String HTTP_OUT_CONN = "http.proxy.out-conn";
     public static final String HTTP_CONN_KEEPALIVE = "http.proxy.conn-keepalive";
@@ -130,7 +135,7 @@ public class HttpCoreTransportServer implements TransportServer {
 
         @Override
         public void run() {
-            System.out.println("Listening on port " + this.serversocket.getLocalPort());
+            LOG.info("Listening on port {}", this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
                 try {
                     final int bufsize = 8 * 1024;
@@ -161,7 +166,7 @@ public class HttpCoreTransportServer implements TransportServer {
                     }
                     final DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(bufsize);
                     outconn.bind(outsocket);
-                    System.out.println("Outgoing connection to " + outsocket.getInetAddress());
+                    LOG.info("Outgoing connection to {}", outsocket.getInetAddress());
 
                     // Start worker thread
                     final Thread t = new ElementalReverseProxy.ProxyThread(this.httpService, inconn, outconn);
@@ -170,8 +175,8 @@ public class HttpCoreTransportServer implements TransportServer {
                 } catch (final InterruptedIOException ex) {
                     break;
                 } catch (final IOException e) {
-                    System.err.println("I/O error initialising connection thread: "
-                            + e.getMessage());
+                    LOG.error("I/O error initialising connection thread: {}",
+                            e.getMessage());
                     break;
                 }
             }
@@ -212,7 +217,7 @@ public class HttpCoreTransportServer implements TransportServer {
             context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, this.target);
 
             final String uri = request.getRequestLine().getUri();
-            System.out.println(">> Request URI: " + uri);
+            LOG.info(">> Request URI: {}", uri);
 
             // Remove hop-by-hop headers
             request.removeHeaders(HTTP.CONTENT_LEN);
@@ -263,7 +268,7 @@ public class HttpCoreTransportServer implements TransportServer {
                 response.setEntity(responseEntity);
             }
 
-            System.out.println("<< Response: " + response.getStatusLine());
+            LOG.info("<< Response: {}", response.getStatusLine());
         }
 
     }

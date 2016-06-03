@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TransportServer implementation using com.sun.net.HttpServer for server and
@@ -36,6 +38,9 @@ import java.util.concurrent.Executors;
  */
 public class SunTransportServer implements TransportServer {
 
+    /** Logger for this class. */
+    private static final Logger LOG = LoggerFactory.getLogger(SunTransportServer.class);
+    
     public static final String CONTENT_LEN  = "Content-Length";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String CONN_DIRECTIVE = "Connection";
@@ -65,6 +70,7 @@ public class SunTransportServer implements TransportServer {
         server.createContext("/", (HttpExchange exchange) -> {
             TransportRequest transportRequest = new TransportRequest();
             final String uri = exchange.getRequestURI().toString();
+            LOG.info(">> Request URI: {}", uri);
             URLConnectionTransportClientImpl transportClient = new URLConnectionTransportClientImpl(targetURL, uri);
             TransportResult result = handler.handleRequest(uri, transportRequest, transportClient);
             final int responseCode;
@@ -100,7 +106,7 @@ public class SunTransportServer implements TransportServer {
                 exchange.getResponseBody().write(body);
             }
 
-            System.out.println("<< Response: " + responseCode);
+            LOG.info("<< Response: {}", responseCode);
         });
 
         if (threads == 0) {

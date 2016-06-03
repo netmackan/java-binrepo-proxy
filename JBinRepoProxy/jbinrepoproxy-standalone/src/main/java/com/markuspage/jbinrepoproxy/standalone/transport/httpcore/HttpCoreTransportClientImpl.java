@@ -36,6 +36,8 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * TransportClient implementation using HttpCore.
@@ -44,6 +46,9 @@ import org.apache.http.util.EntityUtils;
  */
 public class HttpCoreTransportClientImpl implements TransportClient {
 
+    /** Logger for this class. */
+    private static final Logger LOG = LoggerFactory.getLogger(HttpCoreTransportClientImpl.class);
+    
     private final HttpRequestExecutor httpexecutor;
     private final HttpProcessor httpproc;
     private final ConnectionReuseStrategy connStrategy;
@@ -84,7 +89,7 @@ public class HttpCoreTransportClientImpl implements TransportClient {
             this.targetResponse = targetResponse;
 
             final byte[] targetBody = EntityUtils.toByteArray(targetResponse.getEntity());
-            System.out.println("Read body of " + targetBody.length + " bytes");
+            LOG.info("Read body of {} bytes", targetBody.length);
             EntityUtils.consume(targetResponse.getEntity());
             this.targetBody = targetBody;
 
@@ -108,13 +113,13 @@ public class HttpCoreTransportClientImpl implements TransportClient {
 
         try {
             HttpRequest ascRequest = new BasicHttpRequest("GET", uri);
-            System.out.println("Will fetch " + ascRequest.getRequestLine());
+            LOG.info("Will fetch {}", ascRequest.getRequestLine());
             httpexecutor.preProcess(ascRequest, httpproc, context);
             final HttpResponse otherResponse = httpexecutor.execute(ascRequest, conn, context);
             httpexecutor.postProcess(response, httpproc, context);
 
             final byte[] otherBody = EntityUtils.toByteArray(otherResponse.getEntity());
-            System.out.println("Read body of " + otherBody.length + " bytes");
+            LOG.info("Read body of {} bytes", otherBody.length, " bytes");
             EntityUtils.consume(otherResponse.getEntity());
 
             boolean keepalive = connStrategy.keepAlive(response, context);

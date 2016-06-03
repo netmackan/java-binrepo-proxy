@@ -16,6 +16,7 @@
  */
 package com.markuspage.jbinrepoproxy.standalone.transport.sun;
 
+import com.markuspage.jbinrepoproxy.standalone.Main;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
 import java.io.IOException;
@@ -23,9 +24,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.LoggerFactory;
 
 /**
  * TransportClient implementation using the standard Java URLConnection.
@@ -33,6 +33,9 @@ import org.apache.commons.io.IOUtils;
  * @author Markus Kilås
  */
 public class URLConnectionTransportClientImpl implements TransportClient{
+
+    /** Logger for this class. */
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(Main.class);
 
     private final String serverURL;
     private final String theFileURI;
@@ -65,10 +68,10 @@ public class URLConnectionTransportClientImpl implements TransportClient{
 
             result = new TransportFetch(responseCode, responseMessage, body);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(URLConnectionTransportClientImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Malformed URL", ex);
             result = new TransportFetch(500, ex.getLocalizedMessage(), null);
         } catch (IOException ex) {
-            Logger.getLogger(URLConnectionTransportClientImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("IO error", ex);
             result = new TransportFetch(500, ex.getLocalizedMessage(), null);
         }
 
@@ -95,10 +98,10 @@ public class URLConnectionTransportClientImpl implements TransportClient{
 
             result = new TransportFetch(responseCode, responseMessage, body);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(URLConnectionTransportClientImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("Malformed URL", ex);
             result = new TransportFetch(500, ex.getLocalizedMessage(), null);
         } catch (IOException ex) {
-            Logger.getLogger(URLConnectionTransportClientImpl.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error("IO error", ex);
             result = new TransportFetch(500, ex.getLocalizedMessage(), null);
         }
 
