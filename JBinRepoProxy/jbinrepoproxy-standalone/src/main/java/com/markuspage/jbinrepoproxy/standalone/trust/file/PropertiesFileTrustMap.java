@@ -14,8 +14,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.markuspage.jbinrepoproxy.standalone;
+package com.markuspage.jbinrepoproxy.standalone.trust.file;
 
+import com.markuspage.jbinrepoproxy.standalone.trust.TrustMap;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -44,22 +45,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * TrustMap implementation base on a Properties file.
  *
  * @author Markus Kilås
  */
-public class KeysMap {
+public class PropertiesFileTrustMap implements TrustMap {
 
+    /** Logger for this class. */
+    private static final Logger LOG = LoggerFactory.getLogger(PropertiesFileTrustMap.class);
+    
     private static final String FINGERPRINT_PREFIX = "FINGERPRINT";
     private static final String TRUSTFILE_PREFIX = "TRUSTFILE";
     private static final String DIGEST_PREFIX = "TRUSTEDDIGEST";
-    
-    private static final Logger LOG = LoggerFactory.getLogger(KeysMap.class);
 
-    private Properties properties;
+    private final Properties properties;
 
-    
-    public static KeysMap fromFile(File file) throws IOException, FileNotFoundException, PGPException {
-
+    public static PropertiesFileTrustMap fromFile(File file) throws IOException, FileNotFoundException, PGPException {
         final Properties properties = new Properties();
         try (FileInputStream fin = new FileInputStream(file)) {
             properties.load(fin);
@@ -78,8 +79,6 @@ public class KeysMap {
                 }
 
                 for (PGPPublicKey publicKey : parsePublicKeys(pubFile)) {
-                    //System.out.println("# Id: " + String.format("0x%X", publicKey.getKeyID()));
-                    //System.out.println(FINGERPRINT_PREFIX + "." + Hex.toHexString(publicKey.getFingerprint()) + "=" + artifact);
                     String keyKey = FINGERPRINT_PREFIX + "." + Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
 
                     String oldValue = properties.getProperty(keyKey);
@@ -93,21 +92,24 @@ public class KeysMap {
                 }
             }
         }
-
-        return new KeysMap(properties);
+        return new PropertiesFileTrustMap(properties);
     }
 
-    private KeysMap(Properties properties) {
+    private PropertiesFileTrustMap(Properties properties) {
         this.properties = properties;
     }
 
-    public void print() {
-        for (String key : properties.stringPropertyNames()) {
-            LOG.info("{}={}", key, properties.getProperty(key));
-        }
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        properties.stringPropertyNames().stream().forEach((key) -> {
+            sb.append(key).append("=").append(properties.getProperty(key)).append("\n");
+        });
+        return sb.toString();
     }
 
-    public boolean isValidKey(String uri, PGPPublicKey publicKey) {
+    @Override
+    public boolean isKeyTrustedForURI(String uri, PGPPublicKey publicKey) {
         LOG.info("isValidKey({}, {}) ?", uri, String.format("0x%X", publicKey.getKeyID()));
         String fingerprint = Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
         LOG.info("fingerprint: {}", fingerprint);
@@ -180,7 +182,8 @@ public class KeysMap {
         return results;
     }
 
-    public boolean isValidDigest(String uri, byte[] data) {
+    @Override
+    public boolean isTrustedChecksumStoredForURI(String uri, byte[] data) {
         final boolean result;
 
         try {
@@ -193,8 +196,7 @@ public class KeysMap {
                 LOG.info("TRUSTEDDIGEST.{}={}", uri, actualValue);
                 result = false;
             } else {
-                    result = digestValue.equalsIgnoreCase(actualValue);
-
+                result = digestValue.equalsIgnoreCase(actualValue);
             }
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException(ex);

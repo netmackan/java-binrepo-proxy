@@ -16,11 +16,11 @@
  */
 package com.markuspage.jbinrepoproxy.standalone.transport.sun;
 
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransactionInfo;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportRequest;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportResult;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportServer;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransactionInfo;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportHandler;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportRequest;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportResult;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportServer;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;

@@ -16,46 +16,30 @@
  */
 package com.markuspage.jbinrepoproxy.standalone;
 
-import com.github.s4u.plugins.PGPKeysCache;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransactionInfo;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportRequest;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportResult;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransactionInfo;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportClient;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportFetch;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportHandler;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportRequest;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportResult;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportServer;
 import com.markuspage.jbinrepoproxy.standalone.transport.sun.SunTransportServer;
-import java.io.ByteArrayInputStream;
+import com.markuspage.jbinrepoproxy.standalone.trust.ArtifactVerifier;
+import com.markuspage.jbinrepoproxy.standalone.trust.URIVerifier;
+import com.markuspage.jbinrepoproxy.standalone.trust.KeysMap;
+import com.markuspage.jbinrepoproxy.standalone.trust.file.PropertiesFileTrustMap;
+import com.markuspage.jbinrepoproxy.standalone.trust.s4u.PGPVerifyMavenPluginKeysMap;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpHost;
 import org.bouncycastle.openpgp.PGPException;
-import org.bouncycastle.openpgp.PGPObjectFactory;
-import org.bouncycastle.openpgp.PGPPublicKey;
-import org.bouncycastle.openpgp.PGPSignature;
-import org.bouncycastle.openpgp.PGPSignatureList;
-import org.bouncycastle.openpgp.PGPUtil;
-import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
-import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,36 +53,13 @@ public class Main {
     /** Logger for this class. */
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private static final Log COMMONS_LOG = LogFactory.getLog(Main.class);
-    
-    private static final Map<Integer, String> WEAK_SIGALGS = new HashMap<>();
-    
-    static {
-        WEAK_SIGALGS.put(1, "MD5");
-        WEAK_SIGALGS.put(4, "DOUBLE_SHA");
-        WEAK_SIGALGS.put(5, "MD2");
-        WEAK_SIGALGS.put(6, "TIGER_192");
-        WEAK_SIGALGS.put(7, "HAVAL_5_160");
-        WEAK_SIGALGS.put(11, "SHA224");
-    }
-    
-    private static final boolean failWeakSignature = true;
+    private static volatile ArtifactVerifier artifactVerifier; // volatile in order to be updated by the file watch service
 
-    private static File trustMapFile;
-    private static volatile KeysMap keysMap;
-    
     /**
      * @param args the command line arguments
-     * @throws java.io.IOException
-     * @throws java.net.URISyntaxException
-     * @throws java.security.cert.CertificateException
-     * @throws java.security.NoSuchAlgorithmException
-     * @throws java.io.FileNotFoundException
-     * @throws java.security.KeyStoreException
-     * @throws java.security.KeyManagementException
-     * @throws org.bouncycastle.openpgp.PGPException
+     * @throws Exception
      */
-    public static void main(String[] args) throws IOException, URISyntaxException, CertificateException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, FileNotFoundException, PGPException {
+    public static void main(String[] args) throws Exception {
         if (args.length != 1) {
             System.err.println("Usage: jbinrepoproxy-standalone <CONFIG FILE>");
             System.err.println("Example: jbinreporoxy-standalone conf/jbinrepoproxy-standalone.properties");
@@ -108,44 +69,46 @@ public class Main {
         // Configuration file
         final File file = new File(args[0]);
         final Configuration config = Configuration.fromFile(file);
-        
+
         // Keys map
-        trustMapFile = config.getTrustMapFile();
+        final File trustMapFile = config.getTrustMapFile();
         LOG.info("Using keys map file {}", trustMapFile);
-        keysMap = KeysMap.fromFile(trustMapFile);
-        keysMap.print();
+        
+        // Trust map
+        final PropertiesFileTrustMap trustMap = PropertiesFileTrustMap.fromFile(trustMapFile);
+        LOG.info("Final trust map:\n{}", trustMap);
 
         // Target
         LOG.info("Binding to {} with port {}", config.getHost(), config.getPort());
         final HttpHost host = new HttpHost(config.getTargetHost(), config.getTargetPort(), config.getTargetScheme());
         LOG.info("Will proxy to {}", host);
-        
-        // Keys cache
-        File cachePath = config.getCacheKeysFolder();
-        final PGPKeysCache pgpKeysCache = new PGPKeysCache(COMMONS_LOG, cachePath, config.getCacheKeysServer());
 
-        
+        // Keys cache
+        final KeysMap keysMap = new PGPVerifyMavenPluginKeysMap(config.getCacheKeysFolder(), config.getCacheKeysServer());
+
+        // Verifier
+        artifactVerifier = new ArtifactVerifier(trustMap, keysMap, true);
+
+        // Start the server
+        startServer(config.getHost(), config.getPort(), host);
+
+        // Watch for changes in the trust directory and reload when needed
+        runFileWatchService(config.getTrustMapFile(), keysMap);
+    }
+    
+    private static void startServer(String hostname, int port, HttpHost host) throws IOException {
         TransportHandler handler = new TransportHandler() {
-            
-            private TransactionLogger transactionLogger = new TransactionLogger();
-            
+
+            private final TransactionLogger transactionLogger = new TransactionLogger();
+
             @Override
             public TransportResult handleRequest(String uri, TransportRequest request, TransportClient client, TransactionInfo transaction) {
                 LOG.info("Is acceptable?: {}", uri);
                 try {
                     final TransportResult result;
-                    
-                    // Parse as URL
-                    final URL url = new URL("http://example.com" + uri);
-                    final String path = url.getPath();
 
                     // Always accept signature files, digests, metadata, indexes and the root page
-                    if (path.endsWith(".asc") // Signature
-                            || path.endsWith(".sha1") || path.endsWith(".sha256") // Digests
-                            || path.startsWith("/maven2/.meta/") || path.startsWith("/maven2/.index/") // Metadata and indexes
-                            || path.endsWith("/maven-metadata.xml") // Repository metadata
-                            || path.endsWith("/") // Index page
-                            ) {
+                    if (URIVerifier.isSafe(uri)) {
                         result = TransportResult.SUCCESS;
                     } else {
                         // TODO: Check local cache first
@@ -159,7 +122,7 @@ public class Main {
                             if (theFetch.getResponseCode() != 200) {
                                 result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
                             } else {
-                                if (verifyPGPSignature(uri, theFetch.getContent(), signature)) {
+                                if (artifactVerifier.verifyBySignature(uri, theFetch.getContent(), signature)) {
                                     result = TransportResult.SUCCESS;
                                 } else {
                                     result = new TransportResult(403, "Signature verification failed");
@@ -171,7 +134,7 @@ public class Main {
                             if (theFetch.getResponseCode() != 200) {
                                 result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
                             } else {
-                                if (verifyDigest(uri, theFetch.getContent())) {
+                                if (artifactVerifier.verifyByStoredChecksum(uri, theFetch.getContent())) {
                                     result = TransportResult.SUCCESS;
                                 } else {
                                     result = new TransportResult(403, "No signature");
@@ -186,63 +149,6 @@ public class Main {
                     LOG.error("IO error", ex);
                     return new TransportResult(500, ex.getMessage());
                 }
-                
-            }
-            
-            private boolean verifyPGPSignature(String uri, byte[] data, String signature) throws IOException {
-                try {
-                    InputStream sigInputStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature.getBytes("ASCII")));
-                    PGPObjectFactory pgpObjectFactory = new PGPObjectFactory(sigInputStream, new BcKeyFingerprintCalculator());
-                    PGPSignatureList sigList = (PGPSignatureList) pgpObjectFactory.nextObject();
-                    if (sigList == null) {
-                        throw new IOException("Missing signature");
-                    }
-                    PGPSignature pgpSignature = sigList.get(0);
-
-                    PGPPublicKey publicKey = pgpKeysCache.getKey(pgpSignature.getKeyID());
-
-                    if (!keysMap.isValidKey(uri, publicKey)) {
-                        String msg = String.format("%s=0x%X", uri, publicKey.getKeyID());
-                        String keyUrl = pgpKeysCache.getUrlForShowKey(publicKey.getKeyID());
-                        getLog().error(String.format("Not allowed artifact %s and keyID:\n\t%s\n\t%s\n", uri, msg, keyUrl));
-                        return false;
-                    }
-
-                    pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
-                    pgpSignature.update(data);
-
-                    String msgFormat = "%s PGP Signature %s\n       KeyId: 0x%X UserIds: %s";
-                    if (pgpSignature.verify()) {
-                        getLog().info(String.format(msgFormat, uri,
-                                "OK", publicKey.getKeyID(), Arrays.asList(publicKey.getUserIDs())));
-                        if (WEAK_SIGALGS.containsKey(pgpSignature.getHashAlgorithm())) {
-                            if (failWeakSignature) {
-                                getLog().error("Weak signature algorithm used: "
-                                        + WEAK_SIGALGS.get(pgpSignature.getHashAlgorithm()));
-                                return false;
-                            } else {
-                                getLog().warn("Weak signature algorithm used: "
-                                        + WEAK_SIGALGS.get(pgpSignature.getHashAlgorithm()));
-                            }
-                        }
-                        return true;
-                    } else {
-                        getLog().warn(String.format(msgFormat, uri,
-                                "ERROR", publicKey.getKeyID(), Arrays.asList(publicKey.getUserIDs())));
-                        getLog().warn(uri);
-                        return false;
-                    }
-                } catch (PGPException ex) {
-                    throw new IOException(ex);
-                }
-            }
-
-            private boolean verifyDigest(String uri, byte[] data) {
-                return keysMap.isValidDigest(uri, data);
-            }
-            
-            private Log getLog() {
-                return COMMONS_LOG;
             }
 
             @Override
@@ -250,17 +156,18 @@ public class Main {
                 transactionLogger.log(transaction);
             }
         };
-        
+
         // TODO: Determine which implementation to use and load using factory
-        SunTransportServer server = new SunTransportServer(InetAddress.getByName(config.getHost()), config.getPort(), host.getSchemeName() + "://" + host.getHostName() + ":" + host.getPort());
-        //HttpCoreTransportServer server = new HttpCoreTransportServer(config.getHost(), config.getPort(), host.getSchemeName(), host.getHostName(), host.getPort());
+        TransportServer server = new SunTransportServer(InetAddress.getByName(hostname), port, host.getSchemeName() + "://" + host.getHostName() + ":" + host.getPort());
+        //TransportServer server = new HttpCoreTransportServer(hostname, port, host.getSchemeName(), host.getHostName(), host.getPort());
         server.start(handler);
-        
-        // Watch for changes in the trust directory
+    }
+
+    private static void runFileWatchService(final File trustMapFile, final KeysMap keysMap) throws IOException, PGPException {
         WatchService watcher = FileSystems.getDefault().newWatchService();
-        Path dir = config.getTrustMapFile().toPath().getParent();
+        Path dir = trustMapFile.toPath().getParent();
         dir.register(watcher, StandardWatchEventKinds.ENTRY_MODIFY);
-        
+
         for (;;) {
             WatchKey key;
             try {
@@ -268,7 +175,7 @@ public class Main {
             } catch (InterruptedException ex) {
                 return;
             }
-            
+
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind<?> kind = event.kind();
                 if (kind == StandardWatchEventKinds.OVERFLOW) {
@@ -277,12 +184,12 @@ public class Main {
 
                 // Reload the keys map
                 try {
-                    keysMap = KeysMap.fromFile(trustMapFile);
+                    artifactVerifier = new ArtifactVerifier(PropertiesFileTrustMap.fromFile(trustMapFile), keysMap, true);
                 } catch (IOException ex) {
-                    System.err.println(ex);
+                    LOG.error("Failed to reload trust map: " + ex.getLocalizedMessage(), ex);
                     continue;
                 }
-                
+
                 boolean valid = key.reset();
                 if (!valid) {
                     break;

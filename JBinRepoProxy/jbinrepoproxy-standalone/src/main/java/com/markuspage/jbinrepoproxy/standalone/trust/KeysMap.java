@@ -14,34 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.markuspage.jbinrepoproxy.standalone.transport.spi;
+package com.markuspage.jbinrepoproxy.standalone.trust;
+
+import java.io.IOException;
+import org.bouncycastle.openpgp.PGPException;
+import org.bouncycastle.openpgp.PGPPublicKey;
 
 /**
- * Results of attempting to fetch a file.
+ * Provider of keys.
  *
  * @author Markus Kilås
  */
-public class TransportFetch {
-    private final int responseCode;
-    private final String errorMessage;
-    private final byte[] content;
+public interface KeysMap {
 
-    public TransportFetch(int responseCode, String errorMessage, byte[] content) {
-        this.responseCode = responseCode;
-        this.errorMessage = errorMessage;
-        this.content = content;
-    }
-
-    public int getResponseCode() {
-        return responseCode;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public byte[] getContent() {
-        return content;
-    }
+    PGPPublicKey getKey(long keyID) throws IOException, PGPException;
 
 }

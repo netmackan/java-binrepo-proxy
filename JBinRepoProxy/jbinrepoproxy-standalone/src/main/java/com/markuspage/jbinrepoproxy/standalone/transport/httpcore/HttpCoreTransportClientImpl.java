@@ -17,8 +17,8 @@
 package com.markuspage.jbinrepoproxy.standalone.transport.httpcore;
 
 import static com.markuspage.jbinrepoproxy.standalone.transport.httpcore.HttpCoreTransportServer.HTTP_CONN_KEEPALIVE;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportClient;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportFetch;
 import java.io.IOException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;

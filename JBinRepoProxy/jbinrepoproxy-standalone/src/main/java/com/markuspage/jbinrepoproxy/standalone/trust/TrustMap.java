@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 user
+ * Copyright (C) 2016 Markus Kilås
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,12 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.markuspage.jbinrepoproxy.standalone.transport.spi;
+package com.markuspage.jbinrepoproxy.standalone.trust;
+
+import org.bouncycastle.openpgp.PGPPublicKey;
 
 /**
+ * Maps the trust for URIs from public keys or stored checksums.
  *
- * @author user
+ * @author Markus Kilås
  */
-public class TransportRequest {
+public interface TrustMap {
+
+    boolean isKeyTrustedForURI(String uri, PGPPublicKey publicKey);
+
+    boolean isTrustedChecksumStoredForURI(String uri, byte[] data);
     
 }

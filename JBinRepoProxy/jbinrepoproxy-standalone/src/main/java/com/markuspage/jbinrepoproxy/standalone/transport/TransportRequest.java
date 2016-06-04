@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Markus Kilås
+ * Copyright (C) 2016 user
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,18 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.markuspage.jbinrepoproxy.standalone.transport.spi;
-
-import java.io.IOException;
+package com.markuspage.jbinrepoproxy.standalone.transport;
 
 /**
- * The server.
  *
- * Started by providing the handler implementing the policy decision making
- * logic.
- *
- * @author Markus Kilås
+ * @author user
  */
-public interface TransportServer {
-    void start(TransportHandler handler) throws IOException;
+public class TransportRequest {
+    
 }

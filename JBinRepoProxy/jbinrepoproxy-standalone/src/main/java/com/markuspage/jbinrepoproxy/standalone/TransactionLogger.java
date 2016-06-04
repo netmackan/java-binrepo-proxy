@@ -16,32 +16,32 @@
  */
 package com.markuspage.jbinrepoproxy.standalone;
 
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransactionInfo;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransactionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Formats and logs a transaction entry.
  *
  * @author Markus Kilås
  */
 public class TransactionLogger {
+
     /** Logger for this class. */
     private static final Logger LOG = LoggerFactory.getLogger(TransactionLogger.class);
-    
+
     public void log(TransactionInfo t) {
         final StringBuilder sb = new StringBuilder();
         sb.append("\n>>>\n");
         sb.append("   ").append(t.getRequestMethod()).append(" ").append(t.getUri()).append(" ").append(t.getProtocol()).append("\n");
-        
+
         if (t.getException() != null) {
             sb.append("   ").append(t.getException().getLocalizedMessage());
         }
         sb.append("   ").append(t.getResponseCode());
-        
+
         sb.append("\n<<<");
-        
-        
-        
+
         LOG.error(sb.toString());
     }
 }

@@ -14,19 +14,34 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.markuspage.jbinrepoproxy.standalone.transport.spi;
+package com.markuspage.jbinrepoproxy.standalone.transport;
 
 /**
- * Handler where the logic of the policy enforcement can be placed.
- *
- * The provided TransportClient can be used to fetch the requested file and/or
- * any other file before deciding if the requested file should be returned or
- * not.
+ * Results of attempting to fetch a file.
  *
  * @author Markus Kilås
  */
-public interface TransportHandler {
-    TransportResult handleRequest(String uri, TransportRequest request, TransportClient client, TransactionInfo transaction);
+public class TransportFetch {
+    private final int responseCode;
+    private final String errorMessage;
+    private final byte[] content;
 
-    void finished(TransactionInfo transaction);
+    public TransportFetch(int responseCode, String errorMessage, byte[] content) {
+        this.responseCode = responseCode;
+        this.errorMessage = errorMessage;
+        this.content = content;
+    }
+
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public byte[] getContent() {
+        return content;
+    }
+
 }

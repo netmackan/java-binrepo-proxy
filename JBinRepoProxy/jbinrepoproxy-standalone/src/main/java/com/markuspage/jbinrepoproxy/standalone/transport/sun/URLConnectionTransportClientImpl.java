@@ -17,8 +17,8 @@
 package com.markuspage.jbinrepoproxy.standalone.transport.sun;
 
 import com.markuspage.jbinrepoproxy.standalone.Main;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
-import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportClient;
+import com.markuspage.jbinrepoproxy.standalone.transport.TransportFetch;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.markuspage.jbinrepoproxy.standalone.transport.spi;
+package com.markuspage.jbinrepoproxy.standalone.transport;
 
 /**
  * Indicates the result/policy decision for a request.
