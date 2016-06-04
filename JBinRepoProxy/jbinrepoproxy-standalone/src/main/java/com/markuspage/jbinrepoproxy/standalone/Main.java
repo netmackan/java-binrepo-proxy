@@ -17,6 +17,7 @@
 package com.markuspage.jbinrepoproxy.standalone;
 
 import com.github.s4u.plugins.PGPKeysCache;
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransactionInfo;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportClient;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportFetch;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
@@ -125,8 +126,11 @@ public class Main {
 
         
         TransportHandler handler = new TransportHandler() {
+            
+            private TransactionLogger transactionLogger = new TransactionLogger();
+            
             @Override
-            public TransportResult handleRequest(String uri, TransportRequest request, TransportClient client) {
+            public TransportResult handleRequest(String uri, TransportRequest request, TransportClient client, TransactionInfo transaction) {
                 LOG.info("Is acceptable?: {}", uri);
                 try {
                     final TransportResult result;
@@ -239,6 +243,11 @@ public class Main {
             
             private Log getLog() {
                 return COMMONS_LOG;
+            }
+
+            @Override
+            public void finished(TransactionInfo transaction) {
+                transactionLogger.log(transaction);
             }
         };
         

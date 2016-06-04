@@ -16,6 +16,7 @@
  */
 package com.markuspage.jbinrepoproxy.standalone.transport.sun;
 
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransactionInfo;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportRequest;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportResult;
@@ -68,45 +69,55 @@ public class SunTransportServer implements TransportServer {
         server = HttpServer.create(addr, backlog);
 
         server.createContext("/", (HttpExchange exchange) -> {
-            TransportRequest transportRequest = new TransportRequest();
             final String uri = exchange.getRequestURI().toString();
-            LOG.info(">> Request URI: {}", uri);
-            URLConnectionTransportClientImpl transportClient = new URLConnectionTransportClientImpl(targetURL, uri);
-            TransportResult result = handler.handleRequest(uri, transportRequest, transportClient);
-            final int responseCode;
-            if (result.getResponseCode() != 200) {
-                responseCode = 403;
-                exchange.sendResponseHeaders(responseCode, -1); // TODO: How to send a response message?
-                // TODO: What would be appropriate response.setHeaders();
-            } else {
-                responseCode = result.getResponseCode();
-                // If the user did not fetch the file, do it now
-                if (transportClient.getTargetResponse() == null) {
-                    transportClient.httpGetTheFile();
+            final TransactionInfo transaction = new TransactionInfo(exchange.getProtocol(), exchange.getRequestMethod(), uri);
+            try {
+                TransportRequest transportRequest = new TransportRequest();    
+                LOG.info(">> Request URI: {}", uri);
+                URLConnectionTransportClientImpl transportClient = new URLConnectionTransportClientImpl(targetURL, uri);
+                TransportResult result = handler.handleRequest(uri, transportRequest, transportClient, transaction);
+                final int responseCode;
+                if (result.getResponseCode() != 200) {
+                    responseCode = 403;
+                    exchange.sendResponseHeaders(responseCode, -1); // TODO: How to send a response message?
+                    // TODO: What would be appropriate response.setHeaders();
+                } else {
+                    responseCode = result.getResponseCode();
+                    // If the user did not fetch the file, do it now
+                    if (transportClient.getTargetResponse() == null) {
+                        transportClient.httpGetTheFile();
+                    }
+
+                    TargetResponse targetResponse = transportClient.getTargetResponse();
+
+                    // Remove hop-by-hop headers
+                    Headers headers = new Headers();
+                    headers.putAll(targetResponse.getHeaders());
+                    headers.remove(null);
+                    headers.remove(CONTENT_LEN);
+                    headers.remove(TRANSFER_ENCODING);
+                    headers.remove(CONN_DIRECTIVE);
+                    headers.remove("Keep-Alive");
+                    headers.remove("TE");
+                    headers.remove("Trailers");
+                    headers.remove("Upgrade");
+                    exchange.getResponseHeaders().putAll(headers);
+
+                    // Send response
+                    byte[] body = targetResponse.getBody();
+                    exchange.sendResponseHeaders(responseCode, body.length);
+                    exchange.getResponseBody().write(body);
+                    transaction.setContentLength(body.length);
                 }
+                transaction.setResponseCode(responseCode);
 
-                TargetResponse targetResponse = transportClient.getTargetResponse();
-
-                // Remove hop-by-hop headers
-                Headers headers = new Headers();
-                headers.putAll(targetResponse.getHeaders());
-                headers.remove(null);
-                headers.remove(CONTENT_LEN);
-                headers.remove(TRANSFER_ENCODING);
-                headers.remove(CONN_DIRECTIVE);
-                headers.remove("Keep-Alive");
-                headers.remove("TE");
-                headers.remove("Trailers");
-                headers.remove("Upgrade");
-                exchange.getResponseHeaders().putAll(headers);
-
-                // Send response
-                byte[] body = targetResponse.getBody();
-                exchange.sendResponseHeaders(responseCode, body.length);
-                exchange.getResponseBody().write(body);
+                LOG.info("<< Response: {}", responseCode);
+            } catch (IOException ex) {
+                transaction.setException(ex);
+                throw new IOException(ex);
+            } finally {
+                handler.finished(transaction);
             }
-
-            LOG.info("<< Response: {}", responseCode);
         });
 
         if (threads == 0) {

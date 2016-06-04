@@ -26,5 +26,7 @@ package com.markuspage.jbinrepoproxy.standalone.transport.spi;
  * @author Markus Kilås
  */
 public interface TransportHandler {
-    TransportResult handleRequest(String uri, TransportRequest request, TransportClient client);
+    TransportResult handleRequest(String uri, TransportRequest request, TransportClient client, TransactionInfo transaction);
+
+    void finished(TransactionInfo transaction);
 }

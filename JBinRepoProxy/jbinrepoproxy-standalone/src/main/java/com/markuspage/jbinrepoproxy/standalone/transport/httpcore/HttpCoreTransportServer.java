@@ -16,6 +16,7 @@
  */
 package com.markuspage.jbinrepoproxy.standalone.transport.httpcore;
 
+import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransactionInfo;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportHandler;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportRequest;
 import com.markuspage.jbinrepoproxy.standalone.transport.spi.TransportResult;
@@ -218,57 +219,65 @@ public class HttpCoreTransportServer implements TransportServer {
 
             final String uri = request.getRequestLine().getUri();
             LOG.info(">> Request URI: {}", uri);
+            final TransactionInfo transaction = new TransactionInfo(request.getRequestLine().getProtocolVersion().toString(), request.getRequestLine().getMethod(), uri);
 
-            // Remove hop-by-hop headers
-            request.removeHeaders(HTTP.CONTENT_LEN);
-            request.removeHeaders(HTTP.TRANSFER_ENCODING);
-            request.removeHeaders(HTTP.CONN_DIRECTIVE);
-            request.removeHeaders("Keep-Alive");
-            request.removeHeaders("Proxy-Authenticate");
-            request.removeHeaders("TE");
-            request.removeHeaders("Trailers");
-            request.removeHeaders("Upgrade");
-
-            // JBinRepoProxy: Modified to be able to run from localhost without using a different hostname
-            // Sets the request hostname to the hostname of the server
-            final String host = request.getFirstHeader("Host").getValue();
-            if (host != null && (host.startsWith("localhost:") || host.equals("localhost"))) {
-                request.setHeader("Host", target.getHostName());
-            }
-
-            TransportRequest transportRequest = new TransportRequest();
-            HttpCoreTransportClientImpl transportClient = new HttpCoreTransportClientImpl(httpexecutor, httpproc, connStrategy, conn, request, response, context);
-
-            TransportResult result = handler.handleRequest(uri, transportRequest, transportClient);
-            if (result.getResponseCode() != 200) {
-                response.setStatusLine(request.getProtocolVersion(), 403, "Forbidden by proxy");
-                // TODO: What would be appropriate response.setHeaders();
-                response.setEntity(null);
-            } else {
-                // If the user did not fetch the file, do it now
-                if (transportClient.getTargetResponse() == null) {
-                    transportClient.httpGetTheFile();
-                }
+            try {
 
                 // Remove hop-by-hop headers
-                transportClient.getTargetResponse().removeHeaders(HTTP.CONTENT_LEN);
-                transportClient.getTargetResponse().removeHeaders(HTTP.TRANSFER_ENCODING);
-                transportClient.getTargetResponse().removeHeaders(HTTP.CONN_DIRECTIVE);
-                transportClient.getTargetResponse().removeHeaders("Keep-Alive");
-                transportClient.getTargetResponse().removeHeaders("TE");
-                transportClient.getTargetResponse().removeHeaders("Trailers");
-                transportClient.getTargetResponse().removeHeaders("Upgrade");
+                request.removeHeaders(HTTP.CONTENT_LEN);
+                request.removeHeaders(HTTP.TRANSFER_ENCODING);
+                request.removeHeaders(HTTP.CONN_DIRECTIVE);
+                request.removeHeaders("Keep-Alive");
+                request.removeHeaders("Proxy-Authenticate");
+                request.removeHeaders("TE");
+                request.removeHeaders("Trailers");
+                request.removeHeaders("Upgrade");
 
-                response.setStatusLine(transportClient.getTargetResponse().getStatusLine());
-                response.setHeaders(transportClient.getTargetResponse().getAllHeaders());
-                //response.setEntity(targetResponse.getEntity());
-                BasicHttpEntity responseEntity = new BasicHttpEntity();
-                responseEntity.setContent(new ByteArrayInputStream(transportClient.getTargetBody()));
-                responseEntity.setContentLength(transportClient.getTargetBody().length);
-                response.setEntity(responseEntity);
+                // JBinRepoProxy: Modified to be able to run from localhost without using a different hostname
+                // Sets the request hostname to the hostname of the server
+                final String host = request.getFirstHeader("Host").getValue();
+                if (host != null && (host.startsWith("localhost:") || host.equals("localhost"))) {
+                    request.setHeader("Host", target.getHostName());
+                }
+
+                TransportRequest transportRequest = new TransportRequest();
+                HttpCoreTransportClientImpl transportClient = new HttpCoreTransportClientImpl(httpexecutor, httpproc, connStrategy, conn, request, response, context);
+
+                TransportResult result = handler.handleRequest(uri, transportRequest, transportClient, transaction);
+                if (result.getResponseCode() != 200) {
+                    response.setStatusLine(request.getProtocolVersion(), 403, "Forbidden by proxy");
+                    // TODO: What would be appropriate response.setHeaders();
+                    response.setEntity(null);
+                    transaction.setResponseCode(403);
+                } else {
+                    // If the user did not fetch the file, do it now
+                    if (transportClient.getTargetResponse() == null) {
+                        transportClient.httpGetTheFile();
+                    }
+
+                    // Remove hop-by-hop headers
+                    transportClient.getTargetResponse().removeHeaders(HTTP.CONTENT_LEN);
+                    transportClient.getTargetResponse().removeHeaders(HTTP.TRANSFER_ENCODING);
+                    transportClient.getTargetResponse().removeHeaders(HTTP.CONN_DIRECTIVE);
+                    transportClient.getTargetResponse().removeHeaders("Keep-Alive");
+                    transportClient.getTargetResponse().removeHeaders("TE");
+                    transportClient.getTargetResponse().removeHeaders("Trailers");
+                    transportClient.getTargetResponse().removeHeaders("Upgrade");
+
+                    response.setStatusLine(transportClient.getTargetResponse().getStatusLine());
+                    response.setHeaders(transportClient.getTargetResponse().getAllHeaders());
+                    //response.setEntity(targetResponse.getEntity());
+                    BasicHttpEntity responseEntity = new BasicHttpEntity();
+                    responseEntity.setContent(new ByteArrayInputStream(transportClient.getTargetBody()));
+                    responseEntity.setContentLength(transportClient.getTargetBody().length);
+                    response.setEntity(responseEntity);
+                    transaction.setResponseCode(response.getStatusLine().getStatusCode());
+                }
+
+                LOG.info("<< Response: {}", response.getStatusLine());
+            } finally {
+                handler.finished(transaction);
             }
-
-            LOG.info("<< Response: {}", response.getStatusLine());
         }
 
     }
