@@ -91,3 +91,8 @@ TRUSTFILE./maven2/log4j/log4j/=apache-logging-KEYS.asc
 
 ## Credits
 - Some code is from the [Verify PGP signatures plugin](https://github.com/s4u/pgpverify-maven-plugin)
+
+## Related/other Approaches
+- For verification of dependencies only (does not cover plugins): [Verify PGP signatures plugin](https://github.com/s4u/pgpverify-maven-plugin)
+- For fixing Maven so it handles this itself: [MNG-5814](https://issues.apache.org/jira/browse/MNG-5814)
+- For fixing Maven by extending the POM to include trust information: [MNG-6026](https://issues.apache.org/jira/browse/MNG-6026)
