@@ -202,8 +202,7 @@ public class PropertiesFileTrustMap implements TrustMap {
             String actualValue = Hex.toHexString(md.digest(data));
             String digestValue = properties.getProperty(DIGEST_PREFIX + "." + uri);
             if (digestValue == null) {
-                LOG.info("No trusted digest for this file: {}", uri);
-                LOG.info("TRUSTEDDIGEST.{}={}", uri, actualValue);
+                LOG.info("No trusted digest for this file: {}\nTRUSTEDDIGEST.{}={}", uri, uri, actualValue);
                 result = false;
             } else {
                 result = digestValue.equalsIgnoreCase(actualValue);
