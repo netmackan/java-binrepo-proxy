@@ -1,0 +1,94 @@
+This file contains the PGP keys of various developers.
+
+Users:
+gpg --import KEYS
+
+Developers:
+(gpg --list-sigs <your name> && gpg --armor --export <your name>) >> this file.
+
+---------------------------------
+pub   4096R/847AF9E0 2010-04-05
+      Key fingerprint = 3545 C5E3 1CC2 D029 B2CC  AD06 7A58 0908 847A F9E0
+uid                  Jacopo Cappellato (CODE SIGNING KEY) <jacopoc@apache.org>
+sig 3        847AF9E0 2010-04-05  Jacopo Cappellato (CODE SIGNING KEY) <jacopoc@apache.org>
+sig          DFEAC4B9 2010-04-06  David N. Welton <davidw@dedasys.com>
+sig          9E4DCC6B 2013-03-25  Bertrand Delacretaz (CODE SIGNING KEY) <bdelacretaz@apache.org>
+sig          00A1234F 2015-04-15  Andre Arcilla <arcilla@apache.org>
+sig          D3262722 2015-04-15  Jean-Frederic Clere (Apache signing key) <jfclere@apache.org>
+sig          617DDBAD 2015-04-15  Suresh Marru (CODE SIGNING KEY) <smarru@apache.org>
+sig          1F27E622 2015-04-16  Konstantin I Boudnik (Cos) <cos@boudnik.org>
+sig          6ED9BE21 2015-04-16  Bob Paulin (CODE SIGNING KEY) <bob@apache.org>
+sig          C91ED17F 2015-04-16  Brian Dunlap <bdunlap22@gmail.com>
+sig          791485A8 2015-04-17  Jim Jagielski (Release Signing Key) <jim@apache.org>
+sig          A67F707E 2015-04-17  Christopher Schultz <chris@christopherschultz.net>
+sig          9A59B973 2015-04-21  Stefan Sperling <stsp@stsp.name>
+sig          7B8A5D79 2015-04-22  Amareshwari Sriramadasu (Works for Hadoop and ecosystem) <amareshwari@apache.org>
+sub   4096R/384F8B0B 2010-04-05
+sig          847AF9E0 2010-04-05  Jacopo Cappellato (CODE SIGNING KEY) <jacopoc@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG/MacGPG2 v2.0.22 (Darwin)
+Comment: GPGTools - http://gpgtools.org
+
+mQINBEu5pE4BEADBQcje1AzY0uk+6Nm54KIcQtPTUD+Qu9zqbUSEGtrj4J/EB2a/
+yfBnoezEQp/LTp47PT9iIPIGdeWzmBP0w2Xwam4rqd8n47U/cQHQPC0DMltC665f
+OOiFLnrBtIpiI3aBPLSg0x5eQlPYXXJ/cD8tTpYEQ3ptz7lUuJw/KVpjPxNC8net
+o9G94MMjrHHAtpL/jMRZD6HUhR4SXff5ENMbb+/7/eUn71oWVV6Uhtjv6I9h4akh
+8J2v/+VgdBalTWEao4ikh+CN3oV6rn9vgvebUjO/H1AAqDi6fYs7oT5/MfQpW5jA
+RE865/OdU8y3GJlgDJc3ZMh1BMfCxk6lD4PyuUujQiE2hQrSQRHb2V5BUxMjkBnM
+c9EclTLDELBDenlmIDCIq0QufcbSEZJ7d3SDgrQzyTK8EHo8IjwI7q8MfVt+zRQ/
+tbnoEOMSpQU2duiU45uJhyvuVMAGoiY0KCiKntMu49A8ABfePnnN3sMv07bZpHZR
+JWyP6KE1nMXnZFbC8N+0IUucy4+zjDueGPa3kP0dn4TWEFXrftDQzvOBo8WZBbDq
+VW/wnn+IGmDnl+SmnXwiZUDeP9S6TcvRuMbPVGmjs+SJb+KRBYnvGbWoowvX8CVc
+x/ujdRgceXT0ADIlOPDGG1WWH5J/YsGiBtVBjZceuK5KT/NGtVnV+IBixQARAQAB
+tDlKYWNvcG8gQ2FwcGVsbGF0byAoQ09ERSBTSUdOSU5HIEtFWSkgPGphY29wb2NA
+YXBhY2hlLm9yZz6JAjgEEwECACIFAku5pE4CGwMGCwkIBwMCBhUIAgkKCwQWAgMB
+Ah4BAheAAAoJEHpYCQiEevng4lYQAJcvQYAHirE11BARcmdAD3uwmIqdIaSEwR6+
+2usJ1dqEn3wB7HjzVT2o1gkm5/J6ZhmMqPMo0sQNlfXF7laYtTTkHAxbYqn3Pw1o
+3sZKIqKPFE00zPNP6YKwBlSFWvmhTsu21wX+QyKgCzFC/FThZT2vpWHR/S0c3QY4
+3VIhuzM+Xt0coWZLd8H6II4SEBI8lR0S7XIZo6lkdOfDjIsl1ENnc2aWnxQEUssW
+YOGDygGdfYghzDYAmMjubl23VkCum6Zmf8nQrq0xTkaVWg9rWnzt5apvdd0X3Mox
+Ldcxv1LThhgtaC30srupWpS+8Biz657kUk5tyXkVpg7aT5UB07WarsOmpedv8QVz
+sTYC4C96BH/uIu+5RWktDG+aEoEPzHXq4ase/6LTZrZk5DIfwDvfiQk4vJ/8fovB
+ZmuWTlti8CXjazoHYrfYXH5uW9/wN0pAWSgUIQxmVPUN44qdJsNy5MeZA9B/dDTG
+gzgt+wfNOR/HfMx9l7x40IKvLDkkUwcr9oGfCzt/mUZwgQnjg4D6MYCyzquffQPe
+s2bad0iLtCDkjq6j3COa0mHLqQuoDRZKyoqvpdx/4nPQLwELscsS6xl0SQ9Oz6OX
+D56C/kWga4Fq/xKTutcJDX9nk6tz/sCKHQpNhbrJPCj0vw7vbBPJ53ie38tO7kJJ
+H1tvFl06iEYEEBECAAYFAku7RR0ACgkQAVLWA9/qxLkdUgCgm0/f6xAKdzhfz0lA
+1CWDrfbRgPgAni5pRd7uvcKBU9Klv5ige59ar3TUiQIcBBABAgAGBQJRUNVnAAoJ
+EHe2tpqeTcxrehgQALshLMF+mrSZZsEOKYVm3VSwzG1ig2IBWp+agrqhLjYrXu3j
+rNflBnlX1LqBHGQ78md8+39p1p8C1QL2qaRxCCFDx0gPxRn0HBknU4CfNc4wCS3s
+UH2Qkvj13AZEowl2yPDErHGRyRz7kBkcoDspcbxJQEGCoqf/wLgJpt1DfMLD46SX
+pvN0Q4V9DZMO6rmi5x/lGi3UJ9vtrcpJ0xv4jTGFNOMP/RkdkB+4y3PTbj1JqEUb
+k6yx/NgNNj3adpYk1U8/tEPgg7LCkrKxWEPkY4ZPD5fbazTNesBEgtmi3Rjrm8QG
+LMB+IcfDhYevL5IZt5Dx5SUkfX8Pv2jNMkJCDFGRwu4LGvSBGF37jApmoxnUX/2k
+pQrLfUpnNrxzSzAALX6mcPdjic1oTzSpbZso0knLxbdFEH8DCc8XyKDOY2p68ILU
+V6VYhpLwh/fQNlTkbRPLFk+/EkC+EkeJZW+1mbdT9mQNPmsD4efcxbuJ2uZzuFl6
+wMakexZgxCkwmXeC0av2zNlU9Fkl5KGt65oygZWqLNkyMWAmIqbgyA0aGrKyEJmH
+T8SBRwCJrzpNL00xU1tg1vTkctojR2mJrS0ZkC0MQkH0K/OYIvXRmHbaLRuxVxq9
+vHXZME/BdUa1AKzBVX0LX0tPq/5u5TKeKV8XKBkzMU7H+LVLzXrTE9gXgfbUuQIN
+BEu5pE4BEAC/wL2BUkISdOvSwph50lZz8m3lYWOrCcOKKE0xac2dMUJfXel/+4qU
+IeaLTmbOA8rNuc0Xsk9OcXo/h64aaHcTAV4RFvt9SQDZA09ZxygZ8oZ98fSZ3ZvB
+6c7IncU5F0lPaKtfCaZ3pISLB8vKjylvlWz7/M+ivof4JLV/QKaFzARZSbtRjdKF
+PCeDglpq+vrlAvKFuDIMOIuiEcbXqMmVTQRKWiAon6ErITDAwsqFeF883T5oXuLt
+HD2tAhOaXv+T0NjEvQAcQNP8SV1hWMEB/sEGg+dKfanuctrBetoRZh/ncoQsohzA
+nH7JK85UU/3m1cGTAJEX+yKDWkXE6pLEO5ut3msFsoTokjAfaHMA1JHRTAIAcxeI
+ffdRxwNJB3GfMhAlJsSDNcbI8UVl1hgsqxdrckt64tWTXg5h8tSOsns0qxUoy9i9
+DAdMjaNGkjMoQL+d9o0fqLAOCM8Li0RXhKwwU/U6iiwzvvn6Xg0aKmi11peY+RtS
+tdtLX+qNVicdH7Qlqi3K4D8PZjYzt3/GmAq41mQ94AFG+Rm+I9q1v0SfqxaPFL/A
+MuR2sDAouk2UbqC1h0VHfw/QhBdST+XKNvogRH1zJgRkjGh2cVC7/2PvMoN2mh9H
+J2xrhgQdY1v0ZidmYlD1cVObDxFLF9wqZFpGcn0p7Aqczq0KtBu6EwARAQABiQIf
+BBgBAgAJBQJLuaROAhsMAAoJEHpYCQiEevnghscP/0RGTpz2UwcGGa38ZqtARDii
+HIk0IkkjRMaoa59TaY/gfBvIfhFo++xgxlqb8dFvVmXVbiAHX002UxFRkjXEaYZn
+Mz4miNZPwMttrIJIPt3glRtc88Pdv9vGctlWZcnLnohc96NvexQbM4Pjsk13Kxon
+9PyVcC5AoReb6Gfs/sk4jTqxiFwLcxYqNGQsSby3z7qYsjV1JLwEni2Ey/8hOauj
+ics33Nr8sQjzzvyg3JFapwpTU2ZIUd4j9QsTKt2BzE0Zuga1jVZdPFzof16APPj8
+M4eihgmEEoyv9Holn8OHl9gQ6HnTj6iAA3BmXrzxk26KBTDqsG2pVhbzkPc8ASif
+GDPDDEHJpDj9Mj5riCofm7ngNcG2vjth++zsWl09mYekkq8tyFM9PN2sgXo5U9GX
+24JHpzavPmOMZzkt6CTUOD9Wmls+ddavasfniWxnfVNQAGksFbhwGGhsTLM+/cmr
+5/3TWjWJhkLmSPjcoNbdnahvLV70h/WeRjU1HnP3o/ZtIpN/gXLmeSuDre2KsLDV
+hyyPPjGDCbbtKTRqPO4ByiiVVdTNI6c2U7bL+EvE8YX1kFJuRmfNwh7vuTSOJELj
+OutXUO8a6s08y6g23AuBI4V4nMYiF4eymee0shT386Cq7LsMu/F6zXcKEOxgElCT
+CrVGlUZY5UOeaZDyXGj0
+=7PDg
+-----END PGP PUBLIC KEY BLOCK-----

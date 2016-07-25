@@ -1,0 +1,195 @@
+-------------------------------------------------------------------------------
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-------------------------------------------------------------------------------
+
+This is the gpg key we use to sign Deltacloud releases. It is also available
+from the usual keyservers, e.g. from
+  http://pgp.mit.edu:11371/pks/lookup?search=lutter%40redhat.com
+  http://pgp.mit.edu:11371/pks/lookup?search=mfojtik%40redhat.com
+
+Users:
+    pgp < KEYS
+    gpg --import KEYS
+
+Developers:
+    (gpg --list-sigs <your name> && gpg --armor --export <your name>) >> KEYS
+
+-------------------------------------------------------------------------------
+
+pub   1024D/D0E3CC30 2002-08-30
+uid                  David Lutterkort <lutter@watzmann.net>
+sig 3        D0E3CC30 2011-08-18  David Lutterkort <lutter@watzmann.net>
+sig          E9BF653D 2004-01-29  Frank Ch. Eigler <fche@redhat.com>
+sig          B12DC19B 2005-10-17  Mihai Ibanescu <misa@redhat.com>
+sig 3        92F0FC09 2007-02-03  [User ID not found]
+uid                  David Lutterkort <lutter@apache.org>
+sig 3        D0E3CC30 2011-08-18  David Lutterkort <lutter@watzmann.net>
+uid                  David Lutterkort <dlutter@redhat.com>
+sig 3        D0E3CC30 2009-11-20  David Lutterkort <lutter@watzmann.net>
+uid                  David Lutterkort <lutter@redhat.com>
+sig 3        D0E3CC30 2008-10-24  David Lutterkort <lutter@watzmann.net>
+sub   1024g/8BB5805C 2002-08-30
+sig          D0E3CC30 2002-08-30  David Lutterkort <lutter@watzmann.net>
+sub   2048R/FC6E8A22 2008-10-24
+sig          D0E3CC30 2008-10-24  David Lutterkort <lutter@watzmann.net>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+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
+e0Gl3A==
+=Lcvl
+-----END PGP PUBLIC KEY BLOCK-----
+
+pub   2048R/38AAC0EE 2012-11-12
+uid                  Michal Fojtik <mfojtik@redhat.com>
+sig 3        38AAC0EE 2012-11-12  Michal Fojtik <mfojtik@redhat.com>
+sub   2048R/3700AC29 2012-11-12
+sig          38AAC0EE 2012-11-12  Michal Fojtik <mfojtik@redhat.com>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+mQENBFChRtABCADAKJxPUeFgZFSA7oJtgbcuYY1c3eJyLUonhXdog6r6/XMV/oqc
+dCmVBl2wN42glGgET7+mUH7SE/OwZ+ksaDB/dlHwOspZcTlUy/f9J9tp84ED28hy
+xoQovORxATjZ9HzpKtJvgYmvakbvnta2ahPgSB0PGt2ocIBTFP1SLoQyK8QBYur4
++nt+uYLT2ZxbZ4F1gmCHOnUTRDcAKHO4RSGTHvvLpN9R8bQLCnf2Il+ZL2fYEViz
+i7jT9jnaruWl9+SmHr+kVheoDZCHReNZJ1B4TUfyRXIVcjoANE6EDzZaslQimXcP
+/mQq95LVY9t520QQjxrQqLicjYjROxtx4XQVABEBAAG0Ik1pY2hhbCBGb2p0aWsg
+PG1mb2p0aWtAcmVkaGF0LmNvbT6JATgEEwECACIFAlChRtACGwMGCwkIBwMCBhUI
+AgkKCwQWAgMBAh4BAheAAAoJEBcrYeU4qsDulaUH/2oLllc2y0a0Rl5S0HLJX8+9
+bR+UuvcqmM4gLLWqv4IOWgUxjeXmI17b2ZvmhTbKZgpeWYmo3kqmRD8NR6BwFs+A
+7KLQt1kkhVW1h/GSefaQRPnsZqkCdknmmAjTdlg9uKKJCkmhELQ7/lGkb42IOqSV
+tb85XCiCpFWG3Sj1pbcL5WWKNiK8P7AbVxfzr3xkk/h8jJU4fC+LjbFv2Bm2clOi
+AXzICB+dH7ytasbvjppiPz2eJUwj+v+IOtpuzvKklUvoaTJbwzyJDam1ga1ucPOt
+NQDNAL8q43TVjaLEPNeUwMNba3FA6+CgAOI3g0h07bRIvLpKeeBtU2rAx9tHcaK5
+AQ0EUKFG0AEIAMifwWpZOPFeVCCtfcXleKJeiaQhplvkx8JM4PqgjOB5VYLKKttI
+r8HAoxJdtFDSkGKqDXo02TFoJuytgJV+8eY8Z672+yeTNiuKX6dVshJiaLPTvmMp
+w9vgQVcvhsM1JQHEDRyBsYP82eIzOMyCilGGvYN/EgQYhi322GWMGQA8GkBNT2xj
+PLB8cNCej5v8mmWmmk+k049SxFZhuCg8SUKX6kJ0U4kcfJyEdXKlrWVW9AFx1jIk
+slmRssWF/7RMKRyWPpc8iTZM3SR0Te1pA6bFOrCwjdA/AObFBpzH1jvlso0wx5PU
+HS66Bihdi913tml7QJ+/3R2Vym70Hu1min0AEQEAAYkBHwQYAQIACQUCUKFG0AIb
+DAAKCRAXK2HlOKrA7soTB/wIqaN+MhjGqbWdN7Rx0WfYwSEQ4Dj9GJZSFIioks/d
+bP/szdxJhcUk8UuGXKJIiMasE9i5oWXVEg6Y6MWXrz+wgo7NTvzUtM/aGjE57k9F
+veYeLCPDi/ZREjaFoHzl0sTiFJGq/dNtQENicvgJmYI/cFl8lArML9ErUZ7kkUKP
+f0x8R9vlu1rDUpPLdofNU60p2xsiuzlTNy/wec/fk2U3bRGCOjrfHopUhCMRTcC1
+haIEMAqCFwuUWQm0idLjuFjAM54/SuQR3jeHnlXEyHPjRzV25OnSIiSxAqp2GFnL
+edeXmvg4auAIZ9AvSJXzaToFYkBtyL54apfvDOSqp7hX
+=IT/M
+-----END PGP PUBLIC KEY BLOCK-----
+
+-------------------------------
+pub   4096R/86B9EC8A 2013-01-15
+      Key fingerprint = 1F7E AC1D CF3B 839A EAED  4F90 03AB CE25 86B9 EC8A
+uid                  Marios Simon Andreou (Deltacloud Signing Key) <marios@redhat.com>
+sub   4096R/2FC9B76B 2013-01-15
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+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
+=Ii3c
+-----END PGP PUBLIC KEY BLOCK-----

@@ -1,0 +1,132 @@
+This file contains the GPG keys of Apache TinkerPop developers.
+
+Users:    gpg --import KEYS
+
+Developers:
+  Create a key:
+    gpg --gen-key
+
+  Adding your key to this file:
+    (gpg --list-sigs <key id> && gpg --armor --export <key id>) >> this file.
+
+  Publish the key:
+    gpg --keyserver pgp.mit.edu --send-keys <key id>
+
+  Signing another developers key:
+    gpg --keyserver pgp.mit.edu --search-keys <name or email>
+    gpg --keyserver pgp.mit.edu --recv-keys <key id>
+    gpg --sign-key <key id>
+    gpg --keyserver pgp.mit.edu --send-keys <key id>
+
+  Additional Information:
+    http://www.apache.org/dev/openpgp.html#generate-key
+
+********************************* PLEASE NOTE **********************************
+
+  Releases will be signed using one of these keys in this file. This file will
+  be available with the distributed Apache TinkerPop releases at:
+
+      https://dist.apache.org/repos/dist/release/incubator/tinkerpop/KEYS
+
+********************************************************************************
+pub   2048R/CB97E87B 2015-04-20 [expires: 2019-04-20]
+uid                  Marko Rodriguez <okram@apache.org>
+sig 3        CB97E87B 2015-04-20  Marko Rodriguez <okram@apache.org>
+sub   2048R/AC5EAF53 2015-04-20 [expires: 2019-04-20]
+sig          CB97E87B 2015-04-20  Marko Rodriguez <okram@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG/MacGPG2 v2.0.18 (Darwin)
+Comment: GPGTools - http://gpgtools.org
+
+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
+=hNEb
+-----END PGP PUBLIC KEY BLOCK-----
+pub   4096R/54EAB0E6 2015-09-01
+uid                  Stephen Mallette <spmallette@apache.org>
+sig 3        54EAB0E6 2015-09-01  Stephen Mallette <spmallette@apache.org>
+sub   4096R/F9B802F0 2015-09-01
+sig          54EAB0E6 2015-09-01  Stephen Mallette <spmallette@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+mQINBFXl2z4BEADL2HGcVArCY86SlPQmwyNn81EvovCB47rHVe5e9zOmVWM/RXZU
+C2FFyzAWpVkWJWhiwGNvNwL9VH6fI4vISjyX1LtYk1cSlfgXzj9CVLtScL/IpzyS
+tl24s//FCNQWvNDClnN+aO9Ji20KWE68vdBpw0Vt0HqEJu1KMnVVGSS+lPFMcSj8
+A8kfH7FgwGRLx4OpnAYEoZvjmcc5besaD5aEzNqnvNmI6gmTJJrWph8BQJo0nNjd
+mn/S1M7l4LcsNxzYoYoWfNyzW7BaHJm1yd7mZnV7aufl1lQA7ey+xli69yW5vqxt
+rP+1B4qi7EsnkKVd1QatefyUNCm9be16Chf8m3irlVr3ur95QkfyY0yKejsg/EAP
+hjdT/6pW4RS5/U4wkepnnuDJgHoIAmXEmcWM7t6VssVymjqu+30hExMy+epoU2LS
+ZKhfYwsu281uVzmIE7PhmuYGvakSeAR1QqeOtEm3vYq1Qm+4vhgEIB5yVRtC1Ulw
+NzOZoknIrg+5BahCDzufxjoypT3T8zzloJPBkAsLeLfiy51Pbh762p62UA7b6Xd/
+vFqIzTZt33eVGU3CiC3nQnf+pWDxUyu5ELfa6tvVR1nb8WBE3yW/ii5V0nVQLlKF
+VIkAqkWn6KEmDfWJUeGZIqy8yyRg6IEGxOa3FNzCd2q/6pnsaSvYEhgp7wARAQAB
+tChTdGVwaGVuIE1hbGxldHRlIDxzcG1hbGxldHRlQGFwYWNoZS5vcmc+iQI3BBMB
+AgAhAhsDAh4BAheABQJV5eNBBQsJCAcDBRUKCQgLBRYCAwEAAAoJEOpTqZhU6rDm
+0gkQAL1xSTZ5XZRRwAKsTTUIoHdDJ3NUUAa0cveBAf56Cdwfe49ESsyvylkJSw9X
+9E6pNX3zr30Pd9jQXdI63cJhNEOPm+8Iavbk2IgZX/BuaozAe4tpaONfdAbaLsxR
+wee8qE3GICMwyVaKjsLiLG3Utf6pCGiEipMxW8pSqdMsxn10Wr2r+EN3fK/EJrcF
+wPNdQ54/sC1WvKDjds2g0EDClawtBAN8/lxSzPIv1EGtldxIwBv8hSXqAoAE1PqH
+ok+B8Hii6z5I8T6DO+ulPbLGUkgf4O5gbvbdX6d0/Yl6bp4MNsv74+c/tbSUIao4
+KM4kUeBknpIyvY41R7Tv9Lr37RiJ+g8CsDK5v3FMhyVOoSMIheIVBVw9Bz+lU1eG
+dvKFDV613rrLDg9L9D9vmcK4maXZhhJkJafkAxToVB3A4rboLM/w9KN/7hKH6UGa
+cbnVSKO0rNVEObki1TvwLH6Uu7DbM3CTLSx+wUJ7iw2R9QqnZHAEvgITEZNeTNO7
+M3kJtGxiGEN0t5NFLLEEvQY74XAr7VqgwhYb0SEy0y0dvJdwEfJpTZpn+jonae02
+PtQXlkPvmMJQPakPqMSSX80IwCot5oLah8Z5DzTPSh+AZizyF32GOiajUA1JZ6Iw
+a1SSmbQjAy7dG1qVAjpHFMq+dwLjk+SKBYI/o20IDRiY7sK8uQINBFXl2z4BEACd
+ey6ZwXxsEDHPbW2c+a59EZeRA8YSwWLerYEw5+/3tJapluAHIkXphqwdsMdC0vmN
+udF07vVhy3aQOvmCbGzXCQrTSegMNkK6H9NEF6TTKqHXvQQmVkdgDBeibY+h3iip
+xmmbF73xr5gViD8fzl3XHd35RJMhXpAmux9NoPhAq1LsX8hKNYHqt0FCbu1MR0v2
+YcluZonYayrkc/gMSJSO8CSCY7t0oc8XmCunclb0BfukXYcABEemtAlRqnlfXm9o
+oq2GoT8AFeFCgO3xk8U0B6FXXDHyptknQL7ZQJqwSAdZ8qw6wQS4mitb9B+P3vSu
+O1BQ7KZJTjw7BzZVFZ7x1C4ScbvRQ+k9/+4lwdAqHWcxjcgKeFVCBJBeY4c8aGly
+f1vuUss2rRwN3J9bBfZWYFsW+9sloh5PM4r4vYfXzV/rpw3XgFDXFmvDP61NvJRn
+FJB9u9o/oDs/0ZDBg9XuueARbgkzqyk7Yyu7011pAQC221rHO+ZlL177Ov0Z1W5t
+oqrZvwbvzlYvcLOTBfjyWRItf0Z67LQxjCsXUp+zU6IKWHJl58k2Ct3G7Uluhx2T
+yaBp2TWqI7m4ZU0iOs4JoBykuY+5R63A0mUXmbpVh5NDwf7HDsngj9/aUIUbce+U
+k0yZZmzutBZ63SpKzCmYP/pWqNZ5+oYSU0LcSwafNQARAQABiQIfBBgBAgAJBQJV
+5ds+AhsMAAoJEOpTqZhU6rDm+ugQAIiCxkBeSVeY7joCJIUaDQ81yNfB8UorB6c2
+Db8ymuyaBaUO15bglI1tfki7ucKNmrYaJ/N9nk0bb/p/r1q3tRrTayb013reswfM
+0l1Fngx5ckD3PGbKWp5l7t62utnLLikHsEsZIx2N/74gpYxQuCKG82tTXqWEOqJr
+VVFWOk0Q0Ns9wxvph8do4dcxC83rYM6JnLSQNBb41+SghAN+SN+XNqNfu5JZ8BAO
+ceSn2Z/5Mz/tR5alYlc9DDh8qZ3sH8ubVuTIDPdDXtgl7xrYLCm+xiQfgG0XDt2/
+M9X5yaTqAS7j1bFJ7p0Oqo87wuVVMfcqkdklmPel95NmwsuNkQhUCoBtXpqWYAf5
+PajmSXY5SNlWAMg0bS5iHUCO3+nKjTr+sAX5fySULXwzPVurXmIwdxKrq1vgiw8i
+4/hLD4orxsZeNacGEM6mV3T+pwPm4NnkuzQ3WaXcYmSW2GDWitddyNFMafzU6y3o
+PsTYGORhmUrDBRUpNiVcN0zKG94xzYvv6kciTAxPM1tpxD3xtuq53FwEr2qbZAEh
+SnBRTNwjnhN4H7UQMpdpa9Ya1u8Rl/9Igb3Fmgf2uX+VgvoPC7ku1+FM3BXSvvZC
+oPh/VnT7VTDzdHKxwcCdg5ksyOEhOVdRMIemapSZRNHpc+bxnOUN0AxLmpt8XI0g
+5KgCr8Bb
+=IW5m
+-----END PGP PUBLIC KEY BLOCK-----

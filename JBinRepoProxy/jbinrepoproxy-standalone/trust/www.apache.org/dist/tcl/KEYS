@@ -1,0 +1,583 @@
+This file contains the PGP keys of various Apache developers.  Please
+don't use them for email unless you have asked the owner, because some
+keys are only used for code signing.
+
+Users: gpg --import KEYS
+Developers:
+        (gpg --list-sigs <your name>
+             && gpg --armor --export <your name>) >> this file.
+
+pub  1024D/DFEAC4B9 2000-01-20 David N. Welton <davidw@dedasys.com>
+sig 3       DFEAC4B9 2001-11-30   David N. Welton <davidw@dedasys.com>
+sig         26257B68 2001-12-09   Christian Surchi <csurchi@debian.org>
+sig         54DB33D3 2001-12-09   Gaetano Paolone <bigpaul@linuxfaq.it>
+sig         10FDE075 2002-11-20   wrowe@covalent.net
+sig         9DA5CAD8 2002-02-27   Philipp Frauenfelder <pfrauenf@math.ethz.ch>
+sig         924C0C26 2002-09-03   Luigi Gangitano <luigi@debian.org>
+sig         F5FC4B42 2002-11-21   Theodore W. Leung <twl@sauria.com>
+sig         E005C9CB 2002-11-23   Greg Stein <gstein@lyra.org>
+sig         BC936839 2003-06-11   Jaime E. Villate <villate@gnu.org>
+sig         36B93089 2002-02-26   Ronnie Brunner (no comment) <ronnie.brunner@netcetera.ch>
+sig 2       DF04A255 2002-08-15   Dmitriy Ivanov <ace22b@myrealbox.com>
+sig 2       5C1C3AD7 2002-11-20   David Reid <dreid@apache.org>
+sig 2       82AB7BD1 2002-11-21   Cliff Woolley <jwoolley@apache.org>
+sig 2       13046155 2002-11-26   Thom May <thommay@apache.org>
+sig 3       EA291785 2002-08-23   Matt Taggart <matt@taggart.cwx.net>
+sig 3       DE885DD3 2002-11-19   Sander Striker <striker@apache.org>
+sig 3       F894BE12 2002-11-21   Brian William Fitzpatrick <fitz@red-bean.com>
+sig 3       E1EE3FB1 2003-05-13   Marco d'Itri <md@linux.it>
+sig 3       5F4B644B 2003-06-09   Francesco Levorato (f.l.) <flevour@libero.it>
+sig 3       FA49A61A 2003-09-27   Oliver Kuegow <ok@kuegow.de>
+uid                            David N. Welton <davidw@apache.org>
+sig 3       DFEAC4B9 2000-10-30   David N. Welton <davidw@dedasys.com>
+sig         2FA3BC2D 2001-02-27   Wichert Akkerman <wakkerma@debian.org>
+sig         29982E5A 2001-11-01   Steve Langasek <vorlon@debian.org>
+sig         3A6A1C18 2000-12-15   Marco Lanzotti (ml) <marco@gsol.it>
+sig         4F343658 2001-11-19   Patty Langasek <harmoney@dodds.net>
+sig         26257B68 2001-12-09   Christian Surchi <csurchi@debian.org>
+sig         54DB33D3 2001-12-09   Gaetano Paolone <bigpaul@linuxfaq.it>
+sig         A99F75DD 2002-11-20   Rodent of Unusual Size <coar@ACM.Org>
+sig         2C312D2F 2002-11-20   Rodent of Unusual Size <coar@ACM.Org>
+sig         10FDE075 2002-11-20   wrowe@covalent.net
+sig         924C0C26 2002-09-03   Luigi Gangitano <luigi@debian.org>
+sig         F5FC4B42 2002-11-21   Theodore W. Leung <twl@sauria.com>
+sig         E005C9CB 2002-11-23   Greg Stein <gstein@lyra.org>
+sig         30A21D55 2002-12-04   Shane Curcuru <curcuru@apache.org>
+sig         BC936839 2003-06-11   Jaime E. Villate <villate@gnu.org>
+sig         36B93089 2002-02-26   Ronnie Brunner (no comment) <ronnie.brunner@netcetera.ch>
+sig 2       DF04A255 2002-08-15   Dmitriy Ivanov <ace22b@myrealbox.com>
+sig 2       5C1C3AD7 2002-11-20   David Reid <dreid@apache.org>
+sig 2       82AB7BD1 2002-11-21   Cliff Woolley <jwoolley@apache.org>
+sig 2       13046155 2002-11-26   Thom May <thommay@apache.org>
+sig 3       EA291785 2002-08-23   Matt Taggart <matt@taggart.cwx.net>
+sig 3       DE885DD3 2002-11-19   Sander Striker <striker@apache.org>
+sig 3       CC78C893 2002-11-19   Rich Bowen <rbowen@rcbowen.com>
+sig 3       F894BE12 2002-11-21   Brian William Fitzpatrick <fitz@red-bean.com>
+sig 3       08C975E5 2002-11-21   Jim Jagielski <jim@apache.org>
+sig 3       CEDBBB50 2003-05-14   Paolo Didonè (dido) <dido@prosa.it>
+sig 3       5F4B644B 2003-06-09   Francesco Levorato (f.l.) <flevour@libero.it>
+sig 3       FA49A61A 2003-09-27   Oliver Kuegow <ok@kuegow.de>
+uid                            David N. Welton <davidw@debian.org>
+sig 3       DFEAC4B9 2000-10-30   David N. Welton <davidw@dedasys.com>
+sig         2FA3BC2D 2001-02-27   Wichert Akkerman <wakkerma@debian.org>
+sig         29982E5A 2001-11-01   Steve Langasek <vorlon@debian.org>
+sig         3A6A1C18 2000-12-15   Marco Lanzotti (ml) <marco@gsol.it>
+sig         4F343658 2001-11-19   Patty Langasek <harmoney@dodds.net>
+sig         26257B68 2001-12-09   Christian Surchi <csurchi@debian.org>
+sig         54DB33D3 2001-12-09   Gaetano Paolone <bigpaul@linuxfaq.it>
+sig         A99F75DD 2002-11-20   Rodent of Unusual Size <coar@ACM.Org>
+sig         2C312D2F 2002-11-20   Rodent of Unusual Size <coar@ACM.Org>
+sig         10FDE075 2002-11-20   wrowe@covalent.net
+sig         9DA5CAD8 2002-02-27   Philipp Frauenfelder <pfrauenf@math.ethz.ch>
+sig         924C0C26 2002-09-03   Luigi Gangitano <luigi@debian.org>
+sig         F5FC4B42 2002-11-21   Theodore W. Leung <twl@sauria.com>
+sig         E005C9CB 2002-11-23   Greg Stein <gstein@lyra.org>
+sig         30A21D55 2002-12-04   Shane Curcuru <curcuru@apache.org>
+sig         BC936839 2003-06-11   Jaime E. Villate <villate@gnu.org>
+sig         36B93089 2002-02-26   Ronnie Brunner (no comment) <ronnie.brunner@netcetera.ch>
+sig 2       DF04A255 2002-08-15   Dmitriy Ivanov <ace22b@myrealbox.com>
+sig 2       5C1C3AD7 2002-11-20   David Reid <dreid@apache.org>
+sig 2       82AB7BD1 2002-11-21   Cliff Woolley <jwoolley@apache.org>
+sig 2       13046155 2002-11-26   Thom May <thommay@apache.org>
+sig 3       EA291785 2002-08-23   Matt Taggart <matt@taggart.cwx.net>
+sig 3       DE885DD3 2002-11-19   Sander Striker <striker@apache.org>
+sig 3       CC78C893 2002-11-19   Rich Bowen <rbowen@rcbowen.com>
+sig 3       F894BE12 2002-11-21   Brian William Fitzpatrick <fitz@red-bean.com>
+sig 3       08C975E5 2002-11-21   Jim Jagielski <jim@apache.org>
+sig 3       CEDBBB50 2003-05-14   Paolo Didonè (dido) <dido@prosa.it>
+sig 3       5F4B644B 2003-06-09   Francesco Levorato (f.l.) <flevour@libero.it>
+sig 3       FA49A61A 2003-09-27   Oliver Kuegow <ok@kuegow.de>
+uid                            David N. Welton <davidw@linuxcare.com>
+sig 3       DFEAC4B9 2000-01-20   David N. Welton <davidw@dedasys.com>
+sig         E8332029 2000-06-28   David N. Welton <davidw@efn.org>
+sig         EF50D1FF 2000-07-08   Oliver M. Bolzer <oliver@debian.org>
+sig         66468D05 2000-07-11   Marcelo E. Magallon <mmagallo@debian.org>
+sig         ED0D7CFA 2000-11-02   Goswin von Brederlow <brederlo@informatik.uni-tuebingen.de>
+sig         3A6A1C18 2000-12-15   Marco Lanzotti (ml) <marco@gsol.it>
+sig         0167CA38 2000-02-17   Seth David Schoen <schoen@loyalty.org>
+sig         4F343658 2001-11-19   Patty Langasek <harmoney@dodds.net>
+sig         26257B68 2001-12-09   Christian Surchi <csurchi@debian.org>
+sig         54DB33D3 2001-12-09   Gaetano Paolone <bigpaul@linuxfaq.it>
+sig         2E7AAACD 2000-07-14   Jürgen A. Erhard <jae@jerhard.org>
+sig         924C0C26 2002-09-03   Luigi Gangitano <luigi@debian.org>
+sig         F5FC4B42 2002-11-21   Theodore W. Leung <twl@sauria.com>
+sig         E005C9CB 2002-11-23   Greg Stein <gstein@lyra.org>
+sig         BC936839 2003-06-11   Jaime E. Villate <villate@gnu.org>
+sig         36B93089 2002-02-26   Ronnie Brunner (no comment) <ronnie.brunner@netcetera.ch>
+sig 2       DF04A255 2002-08-15   Dmitriy Ivanov <ace22b@myrealbox.com>
+sig 2       5C1C3AD7 2002-11-20   David Reid <dreid@apache.org>
+sig 2       82AB7BD1 2002-11-21   Cliff Woolley <jwoolley@apache.org>
+sig 3       EA291785 2002-08-23   Matt Taggart <matt@taggart.cwx.net>
+sig 3       DE885DD3 2002-11-19   Sander Striker <striker@apache.org>
+sig 3       CC78C893 2002-11-19   Rich Bowen <rbowen@rcbowen.com>
+sig 3       F894BE12 2002-11-21   Brian William Fitzpatrick <fitz@red-bean.com>
+sig 3       08C975E5 2002-11-21   Jim Jagielski <jim@apache.org>
+sig 3       CEDBBB50 2003-05-14   Paolo Didonè (dido) <dido@prosa.it>
+sig 3       5F4B644B 2003-06-09   Francesco Levorato (f.l.) <flevour@libero.it>
+sig 3       FA49A61A 2003-09-27   Oliver Kuegow <ok@kuegow.de>
+uid                            David N. Welton <davidw@prosa.it>
+sig 3       DFEAC4B9 2000-10-30   David N. Welton <davidw@dedasys.com>
+sig         3A6A1C18 2000-12-15   Marco Lanzotti (ml) <marco@gsol.it>
+sig         29982E5A 2001-11-01   Steve Langasek <vorlon@debian.org>
+sig         4F343658 2001-11-19   Patty Langasek <harmoney@dodds.net>
+sig         26257B68 2001-12-09   Christian Surchi <csurchi@debian.org>
+sig         54DB33D3 2001-12-09   Gaetano Paolone <bigpaul@linuxfaq.it>
+sig         924C0C26 2002-09-03   Luigi Gangitano <luigi@debian.org>
+sig         F5FC4B42 2002-11-21   Theodore W. Leung <twl@sauria.com>
+sig         E005C9CB 2002-11-23   Greg Stein <gstein@lyra.org>
+sig         BC936839 2003-06-11   Jaime E. Villate <villate@gnu.org>
+sig         36B93089 2002-02-26   Ronnie Brunner (no comment) <ronnie.brunner@netcetera.ch>
+sig 2       DF04A255 2002-08-15   Dmitriy Ivanov <ace22b@myrealbox.com>
+sig 2       5C1C3AD7 2002-11-20   David Reid <dreid@apache.org>
+sig 2       82AB7BD1 2002-11-21   Cliff Woolley <jwoolley@apache.org>
+sig 3       EA291785 2002-08-23   Matt Taggart <matt@taggart.cwx.net>
+sig 3       DE885DD3 2002-11-19   Sander Striker <striker@apache.org>
+sig 3       CC78C893 2002-11-19   Rich Bowen <rbowen@rcbowen.com>
+sig 3       F894BE12 2002-11-21   Brian William Fitzpatrick <fitz@red-bean.com>
+sig 3       08C975E5 2002-11-21   Jim Jagielski <jim@apache.org>
+sig 3       CEDBBB50 2003-05-14   Paolo Didonè (dido) <dido@prosa.it>
+sig 3       5F4B644B 2003-06-09   Francesco Levorato (f.l.) <flevour@libero.it>
+sig 3       FA49A61A 2003-09-27   Oliver Kuegow <ok@kuegow.de>
+sub  1024g/07014AC2 2000-01-20
+sig         DFEAC4B9 2000-01-20   David N. Welton <davidw@dedasys.com>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+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
+=7KDD
+-----END PGP PUBLIC KEY BLOCK-----
+
+pub   1024R/F084E489 1995-04-11
+uid                  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+sig 3        F084E489 2005-05-29  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+uid                  Pat Thoyts <Pat.Thoyts@bbsrc.ac.uk>
+sig 3        D45051CD 2005-04-04  David Zolli <kroc@kroc.tk>
+sig          F084E489 1997-07-30  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+sig          087F4661 2005-01-31  [User ID not found]
+sig          DFEAC4B9 2005-06-03  David N. Welton <davidw@dedasys.com>
+sig 2        DFEAC4B9 2004-12-04  David N. Welton <davidw@dedasys.com>
+sig 3        E4F087D7 2004-11-28  Werstak Marek <marexmail@web.de>
+sig 3        98016DC7 2004-11-29  Josef Spillner <josef@coolprojects.org>
+uid                  Pat Thoyts (Apache committer id) <patthoyts@apache.org>
+sig 3        F084E489 2005-05-29  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+uid                  Pat Thoyts <Pat.Thoyts@bigfoot.com>
+sig          F084E489 2001-08-16  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+uid                  Pat Thoyts <Pat.Thoyts@blueyonder.co.uk>
+sig 3        F084E489 2004-09-23  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+uid                  Pat Thoyts <patthoyts@users.sourceforge.net>
+sig          F084E489 2001-08-16  Pat Thoyts <pat@zsplat.freeserve.co.uk>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.0 (FreeBSD)
+
+mI0CL4nfqAAAAQQArwMKNxV/qgU/xXce3pxZU93VnmlGOxwlHErgzsYFVK1Utt6H
+UaJhMhcNh00W2VfkZ8cBkyo/ZPQFEy3iyQcepfgnGkieelza+HGZ17NcCkjX/+lf
+bO5ILYUGM4oN386v6WUPrtHe+jyychRmVbLB8Lo0AG8uTuxwYH3QlfCE5IkABRG0
+I1BhdCBUaG95dHMgPFBhdC5UaG95dHNAYmJzcmMuYWMudWs+iEYEExECAAYFAkJR
+MTQACgkQaouwntRQUc3ZjACfebtbWccxMSi+m/rDEFV/mXIKb4wAn29gu7hfQhVC
+QWX1ILlEOpJyyXpLiQCVAwUQM99bXWB90JXwhOSJAQGabwP+JkYBZwWMQQu1Zm5L
+qhEuUNe8QTM3udGgdOzVpqqsr3Gm73k/wYAPimv+e5GN7CZhRFKb36/X/YcsZxiJ
+XPdMUov5eybD/redE5tIug7k3rHZZxDOioS1Jvtlkz9GDRNO7n3JZzjQYwUM5P0l
+af55meau4jIXVmx6b1dUShrJdRaIRgQQEQIABgUCQf2XhQAKCRCVlp2RCH9GYWus
+AJ4x3uPU7gihgTBtuVslNC0yUp6wxwCgxmthv/GGnzo24N5qnxk3Jl45RjyIRgQQ
+EQIABgUCQqDXtQAKCRABUtYD3+rEuUAqAJ0VBj0ZO+cDgF9/RaAU/cSfM3tt7ACg
+q7pCbXLTS5xaMzGh8NpU0z/SrZeITAQSEQIADAUCQbGEcAWDCKdQeAAKCRABUtYD
+3+rEucmmAKDT5EyRMQY8hoqdZ3Pz6HSaG+GcaQCeNnZINZf+45Q5Ql4t+QUnJrmC
+1eeITAQTEQIADAUCQaoxyQWDCK6jHwAKCRB0OlVM5PCH18OdAJ9gEh3LUWZ4RIkx
+g1TE70KFgsPwxQCfa5E+19cjzXHl1v50YlgkW8ugaUWITAQTEQIADAUCQaslRAWD
+CK2vpAAKCRDOinnXmAFtx3/2AJ98jZUZ/+qR53iAA0t4Axe/vEi1CQCeM99SeFT1
+55hqKpDWmrLTyp7UwNK0N1BhdCBUaG95dHMgKEFwYWNoZSBjb21taXR0ZXIgaWQp
+IDxwYXR0aG95dHNAYXBhY2hlLm9yZz6JAJUDBRNCmg9JYH3QlfCE5IkBAU4vA/94
+gsDwr2yWiDQHYxV4pq66MCOiTKxsj/zgUNdT6F3B8amtaniDfD/plnOfeV/ze8bD
+JwcVb+yU0EjO08N746tenD77lYQ2PSZbtGTSkpNtHNzzwcJHtIB50reNsORnDp49
+DpwQ6WkJzgZA76JUfURpcwDrKRIrK8VvW8uJzLQvYbQjUGF0IFRob3l0cyA8UGF0
+LlRob3l0c0BiaWdmb290LmNvbT6JAJUDBRA7fEFuYH3QlfCE5IkBAeF3A/0eyuAb
+Wx3c0YE01rBW5vbwNeZisFsYZA0cY/U+hz/eyM5YQIG6NpTeUwUx0d8xItQTny9v
+rEMybXnQVEoPW+wI00ZHFvaf7hxaG/HxUsmsfvbKNuqxq4BOREWYDl+OnaAR0r9L
+3EaWoFAT/xifd0mQaWCTfRuTIdZHxtOmYJtydbQnUGF0IFRob3l0cyA8cGF0QHpz
+cGxhdC5mcmVlc2VydmUuY28udWs+iQCVAwUTQpodDGB90JXwhOSJAQHTCgP+K5nY
+PWFwCxs8LILSJ5/YRkgxJLnJkJ0PEKFzubzZuPAChQynKo7hcDoBWoU6ZPVcBVK8
+s0tgnGAtiZQwqQ2eo5GzK8v57dho4c8mgdr7AQP67b/ZthmFQqcWcby593PFRrJM
+5gaxjThbdcsCQA1uXt/4fJT2Kn99XEcNHsz75Iy0KFBhdCBUaG95dHMgPFBhdC5U
+aG95dHNAYmx1ZXlvbmRlci5jby51az6JAJUDBRNBU1cIYH3QlfCE5IkBAZ5RBACG
+TDipmzo5H3NueFY3hc3jCHE9b1SuQJgNvR3oYubICSbZWw8cuBLlyWSMs0FEmOpO
+Y3k7020DYBifGv/M/+gHsDwrjLk5mAmhS0NC2KmutGDOFe4HHKzoG5Zkb9fE5sPc
+woKjxASqc32R++tnbQCwjv/CUEdomYoQvRnVm1lAzrQsUGF0IFRob3l0cyA8cGF0
+dGhveXRzQHVzZXJzLnNvdXJjZWZvcmdlLm5ldD6JAJUDBRA7fEIzYH3QlfCE5IkB
+ASjnA/0UMTCeyzegLrOTwFogmSniveeTflTYl6QXWtzlGkQnU5YosP1qEznzXpcR
+ujeSu8KO5uUBmp5eV02C8CCdvm911f+ImtkDX9kSplLCpr7+p/UHir3s4vbf77vI
+ZW0dyGCz4dkhHws+huza8SP2Vbso8xa9hD2nkP+VU+qpcMJ7vQ==
+=2xJ3
+-----END PGP PUBLIC KEY BLOCK-----
+
+pub   1024D/F7E40F0D 2005-10-07
+uid                  Ronnie Brunner <ronnie@apache.org>
+sig 3        F7E40F0D 2005-10-07  Ronnie Brunner <ronnie@apache.org>
+uid                  Ronnie Brunner <ronnie.brunner@netcetera.ch>
+sig 3        F7E40F0D 2005-10-07  Ronnie Brunner <ronnie@apache.org>
+sub   2048g/A9F7FEE0 2005-10-07
+sig          F7E40F0D 2005-10-07  Ronnie Brunner <ronnie@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.1 (SunOS)
+
+mQGiBENGc6wRBAC3Gh6FpcqolWy5MGU5tah7IpepXFfIO9hBTH/Or1AFnD5g9k8X
+y/i2ibHiPlS4DJQGnlJKk7xG5OyC3xZqJbnOfnPL2mBSCm8xq8cL5S4AqSxMSB4s
+aFhgcvMlzrJ0bx9hy8D8U76GTMJrC62qjtrb+3UhmNinOIhVPk7hreNxwwCgijPd
+snyhDFo4bDvipaSXQNOzXZcD/istqueWz0UtJKxNFV44Lm+zyvjV56A+NmsR7Zia
+xy+42orEvc60tsJhAMy0C7DXJ2YIBiY7jShh6WdrOYwj/gGsE2JNKfoWClssu3Ks
+6DUJr+yAq47I6TWvoKzwDOxhsQ6LgZcDFzRTWBT0BuibvhwDHxS+kWfpdHyeW3Rp
+sJiBA/9chXw25Vg4b6+o5BMIABcWYPM2L3chZAPalfWOQ/U/rbVszVHHYKNF1RFm
+vF0W5Ifp9CEfIbLPxZovNtkPZLi1wY+MibbMbcXm57Ew7I5uove+4hEYSC5FvGRU
+xeaAs54m5o0kS9vUeRY03Mqdwbgu6xo1LdPpwqX73BjJOnrmobQsUm9ubmllIEJy
+dW5uZXIgPHJvbm5pZS5icnVubmVyQG5ldGNldGVyYS5jaD6IXgQTEQIAHgUCQ0Zz
+rAIbAwYLCQgHAwIDFQIDAxYCAQIeAQIXgAAKCRB6Q0lK9+QPDcb3AJ9rOxUHSiRM
+YvIUIDXfcvf/VsCq9QCfabViI9+YQIZfIUqYaa9edTkErHC0IlJvbm5pZSBCcnVu
+bmVyIDxyb25uaWVAYXBhY2hlLm9yZz6IXgQTEQIAHgUCQ0Z3qQIbAwYLCQgHAwID
+FQIDAxYCAQIeAQIXgAAKCRB6Q0lK9+QPDW5HAJ9MtjDo6BIhj3Op0t//jc11yj+5
+OACggBK8Cal+NwdR2xT02K5GrKDvO7a5Ag0EQ0Z1PxAIALy2J2WEcU6YFH1N4YKV
+yJq9g5Ls2fm5teA+pCWFot3cS4EyJ5Y2+HDs7g/SngfOHA2zs6mL7xXyi4OTtKiD
+FHq+UCOeMbjnLzP1fuZVds4nuh6QGyna+WdcXJeBb9KCQay8PkbTkRMdrnBI6vXB
++D17UX4U9ZHFgQ0yIs8n0U6Hqx/I38P4xgDIcViLybKAifpB0bb8qgXwKNa4NciK
++gTar3eSwB1D03mOnK4IIXWiPNhRGXrqCkWKWQ3ZXfKBtYXroL0BlEYQecNDvUZE
+4hkPiXHOwZH45WfWg8YJsBVMeZiU2mS0CJLNhL0PhJMyOufnHq+B9FTjof5mB3lB
+yL8ABA0H/1+IU/M5lL84gc9UOY8GcKP0VqngDHkvTjfJh+Bd/an/n9p0B+N1lp81
+ZXcPo2v0ctTYslpBhZqprEMLcJ6rqgn0/1g82F1GcL9imdvwdGzLgbIDrX9pEEFp
+VgRqm9BbFx8zCQCdnOpO7UiQgWv9RgoUpTrOEjGTBXsS+uaoxJIZrf8DkJ993dY0
+1GajGCyYmIvAechNy4fnNLIHSVfcYbXPxCfykrL80WtMJAzBntO+kyDTI/Kkv5eG
+R0olEylvSYwukLjEXUZhWhTJu84F6cyvvFDiZAN/kNcpNXJ4sQK10WxVkyf0z8TK
+2K37cTiHgCxXrPAPohI9mCYG5m1N3meISQQYEQIACQUCQ0Z1PwIbDAAKCRB6Q0lK
+9+QPDW3cAJ9bNkT/mencB6Tuo/KgO+YBq3E/DgCePw2VEmoI6nYS2zJui+knf7qH
+Bic=
+=plBS
+-----END PGP PUBLIC KEY BLOCK-----
+
+pub   4096R/6992381C 2010-04-28
+uid                  Massimo Manghi (CODE SIGNING KEY) <mxmanghi@apache.org>
+sig 3        6992381C 2010-04-28  Massimo Manghi (CODE SIGNING KEY) <mxmanghi@apache.org>
+sig          DFEAC4B9 2010-04-28  [User ID not found]
+sub   4096R/8BFF2CA9 2010-04-28
+sig          6992381C 2010-04-28  Massimo Manghi (CODE SIGNING KEY) <mxmanghi@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+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
+=8pg+
+-----END PGP PUBLIC KEY BLOCK-----

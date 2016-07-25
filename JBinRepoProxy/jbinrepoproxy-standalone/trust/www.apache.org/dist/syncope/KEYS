@@ -1,0 +1,242 @@
+************************************************************************************************************
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+************************************************************************************************************
+
+This file contains the PGP and GPG keys of Apache Syncope
+developers. Please don't use them for email unless you have
+to. Their main purpose is code signing.
+
+Users: pgp < KEYS
+       gpg --import KEYS
+
+Apache Syncope Developers:
+       (gpg --list-sigs <your name> \
+             && gpg --armor --export <your name>) >> this file.
+
+************************************ PLEASE NOTE **********************************************************
+
+        Edit this file in SVN at
+        https://dist.apache.org/repos/dist/release/syncope/KEYS
+
+************************************************************************************************************
+pub   1024D/19FEA27D 2010-03-24
+uid                  Simone Tripodi (simonetripodi) <simonetripodi@apache.org>
+sig 3        19FEA27D 2010-03-24  Simone Tripodi (simonetripodi) <simonetripodi@apache.org>
+sub   4096g/C002CC79 2010-03-24
+sig          19FEA27D 2010-03-24  Simone Tripodi (simonetripodi) <simonetripodi@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.11 (Darwin)
+
+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
+dcC0KEtNPufKywDTzA==
+=vtxx
+-----END PGP PUBLIC KEY BLOCK-----
+pub   2048R/273DF287 2012-02-22
+uid                  Francesco Chicchiriccò (ilgrosso) <ilgrosso@apache.org>
+sig 3        273DF287 2012-02-22  Francesco Chicchiriccò (ilgrosso) <ilgrosso@apache.org>
+sig          B1F055C1 2014-10-01  Fabio Martelli (fmartelli) <fmartelli@apache.org>
+sig          293412BA 2014-10-01  Marco Di Sabatino Di Diodoro <mdisabatino@apache.org>
+sub   2048R/E72D56D6 2012-02-22
+sig          273DF287 2012-02-22  Francesco Chicchiriccò (ilgrosso) <ilgrosso@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1
+
+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
+SA3+IGA=
+=Eo7z
+-----END PGP PUBLIC KEY BLOCK-----
+pub   2048R/B1F055C1 2012-02-22
+uid                  Fabio Martelli (fmartelli) <fmartelli@apache.org>
+sig 3        B1F055C1 2012-02-22  Fabio Martelli (fmartelli) <fmartelli@apache.org>
+sub   2048R/D0CCCE80 2012-02-22
+sig          B1F055C1 2012-02-22  Fabio Martelli (fmartelli) <fmartelli@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG/MacGPG2 v2.0.17 (Darwin)
+
+mQENBE9EnfYBCADMiNjnYdWELhri60pEHMbpcKGblww2oG8uZ2P/t7UFfxQwMB7a
+Xv3Z/vLNeITsvSbC7RIgcx1+4rN4P8r3TiZpMtoKDQrZqIdaZOZsY3ZdBR24/ARa
+df7rzkqyhtpB4arkq4TAvoIBref3fYs+oEKuK9I2rA74HsxmOJujk0tKVqgYg9ha
+v06X8AE/pBsJhDm7vi2XGABCLO1buzzBLy9OTU3wGeXCITdVNnQ4heXFJ4XsEkZA
+qkK3AGpHXOv2F9treHPD8coisILgDb1nY6YXwK9WytGQNanD9Wlr5TNMSlHzTbaW
+fOumioKmZyyyIISPpslBbntYtYTdI7Yn1L4RABEBAAG0MUZhYmlvIE1hcnRlbGxp
+IChmbWFydGVsbGkpIDxmbWFydGVsbGlAYXBhY2hlLm9yZz6JATgEEwECACIFAk9E
+nfYCGwMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJEPLIBhax8FXBXkMH/R5q
+hNv0u13lheEzVHPQQZQXW3LrwkbtYtNfVCgCdM4/4Oj80OJj0LEfQGSMpVdNCW4y
+OhLPB/9BGbC9er35+/gVXdQCiAw9afxL1lOQikhbmq0tjrrwafIpfio27BZw/OmW
+dUn837VrqUxpLawlMYaXX5nlNNemDzzAVcOyCN6TT6/30oZKXwqwCbwhfJJQ5Ga8
+xoAA28llMcveEI8oQ+PnASIGuuY9TKKR+K4jBLczP1UgAKzptCsUXH7ieVmaGjI4
+wSWQEZB5OPOhJ4JgirB2dbFb6saPOuuTvcMBPg04hyOMeO4vPzpv7fwfr35CcUqW
+2+APR8kR9dZDpBe4Hzu5AQ0ET0Sd9gEIAL8PCzCD+AG8+BIB87vKtLYBceq81VWc
+eST+GupLPrHqETXwKtw+YRZiOAmEyYe8vGwCxGz/gn7Oe7+dV/5nOXcRVVBzJ4zm
+0UZYXI+9iMTjK8wZPv8phIeWYCkP1TrClAPLan9t/NV6GdJSti/unu4TM2FZlEqo
+PS0EgscAFLPDf0sTQjNTdynTM5evDY2Gnx1k3Li9oPHJSC4McM2wHxQ/bxGG8RIC
+2rSP/7g//b501CFHY/MGWkyQsnVrHdsOA3R3ekMkm9l6q0Qlkp9JaTnyPqU0/uEA
+9+/E3UvhdWqQSTaG4BREFlCae5myaou54GAw0EqHlohb9RYWJWDkx30AEQEAAYkB
+HwQYAQIACQUCT0Sd9gIbDAAKCRDyyAYWsfBVwUkSB/9DkTm0tMYn7whkMCiTS//o
+HnmrrPguWqyuYvRSiw7LxTDKiPXFuH33hw5bhJ74pRcPeykqFgU4h3Q4omRFZUCN
+accjxw59bOXl1tia9cQumle/VtZxtcLM1s/fJxY9SP+nj1DSpTT7nmQcqAOH7L8X
+Gf7pnbyZf10OHh4XY1W0C3PbEaDQFh2m5ZZkb8nlCj/S/yYFvE8qsorM42jihwJk
+nMx1iInwqWmQyXQ/1+jV2UyovT6lcB236kLxWfh38rsER7JFZK63I6gOFxSxORvL
+v3Qt2rOAMcxvSJ4ti8b945AlTESzYdcl3Iu3jZBftHW6LSsX5yyJ8MLqi0pvnjs+
+=ygOT
+-----END PGP PUBLIC KEY BLOCK-----
+pub   2048R/293412BA 2012-02-22
+uid                  Marco Di Sabatino Di Diodoro <mdisabatino@apache.org>
+sig 3        293412BA 2012-02-22  Marco Di Sabatino Di Diodoro <mdisabatino@apache.org>
+sub   2048R/91A58B7A 2012-02-22
+sig          293412BA 2012-02-22  Marco Di Sabatino Di Diodoro <mdisabatino@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG/MacGPG2 v2.0.17 (Darwin)
+Comment: GPGTools - http://gpgtools.org
+
+mQENBE9EpywBCACSNaO2d/lBS3JBes85L6hH4cTdgkRuoByetK9nK2qz41pktZcS
+gaxcWB9BDFzh4p8xIxmK+x0TyzfHqu8uE5NRBZapecK3KUYU1TNObcgXfX6VleSP
+kqBhDam5yQw4QljEwVzKngwMMKgchPcH64pAh1DbiI21/EqwPY/9ZruHoV2cXGt7
+ERZunIXHipIsN6DSUYeaqpqJHn0riGmgp6TRZWxxHDag2U12Y2H0Fo/pYoG1Q4jN
+84d/ho22RPKwxA/O1gYkPtIb7vAP8/UfjQwOa4T9CYTHddfZQ4v/9OubSIt9VWQS
+Hh1vBpYyoFJThCN82X0Cv0rjA/SgTnkDfzTFABEBAAG0NU1hcmNvIERpIFNhYmF0
+aW5vIERpIERpb2Rvcm8gPG1kaXNhYmF0aW5vQGFwYWNoZS5vcmc+iQE4BBMBAgAi
+BQJPRKcsAhsDBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRA0B+dsKTQSuqon
+B/9RLHwbnBK0RgNLCUDE+7RmdHQZ4LDp+ZvAZFDECTle3G2PzGQEgHGdyF75ural
+KrKteWdhLx8ca89Iv/Q1A5I57rMA8eYwo4wfdE4H9RdJJIYGkYplS3t+q3Ooa/Zi
+GqiSj0KFHdFQwZRemWgwsuP/U1yWBPhppyb/U1nbVskLJnmYjMVW62NHG26Ae04t
+0UJv5JZkQyLQFo589vwxEUEOPMF5AqfQJ5gFnnmAQtMgxYUCoKFtAMq2kQ3jgjev
+iJFQBx6iPRqslk6mrD8L5VJSEt9C7XORiHPLy/B3TUkY33/AFTmVnm/TPns7scFa
+lkpa9hgi2MvD2btfmUA/nGy5uQENBE9EpywBCAC2aR9ge/HlPrq47TMdDdPQXRMk
+gbOsrQY9A9sCifiTn1jzzz1icwNFFtJTcdPWjfu9a+fqmQK8rj8qDcKGaPBC0hYb
+9n2ZNsRJQqu043IkK1XwYBDPsP+I7aMvr5BYzeuzDVrJo5ufWPyPkTED4fbqtcNq
+mLDkHJVWosPgl4j8jaBLSEHlwPJfF2DuiXP+uw0mboDjD7dvLbF8kh9d7ee1c03X
+UKWWYSO1U7GbqVhZaQyJZt0rUWKsyQq2R4jPElXlYX+WQVeXbR6UL28qnCw0OShM
+dIS0tc3lpSg7XkZ/Y0UxIQQNGvpEQuxYTUk+yfn3v7UVSt5UnMYmN8TvswtzABEB
+AAGJAR8EGAECAAkFAk9EpywCGwwACgkQNAfnbCk0Erpsmgf/eJo4AyqddSHNUlia
+mu0JElceNk7ioSaS04hMvVVXhk75PmI9NGbYOYrvdfiY5L44cnQlhO4bbnykvmBd
+mBH6eIKN1ToeAfCh8dWtoYjFpqcg8AL9ed9+XDvlZD5RbERSkFoN8hl/suL/WIAK
+hjsXAg5BYDlpdRnaXSvq4EhS2vlJU7MW4R8cOD14febGXGim2IG2rNPWFWzMy+ZB
+3yAbZPe2n0rm94bSJO781WwJyHQpY7ciONPM4bzqepjMrqtkj0BMahIZMRRemkTq
+96AmR2AuNa8wbuPXctJm/+wv/QZeBQQQjU9/5FIMD7h5LRMEwcKJm5n0JaanIY5C
++csR2Q==
+=MGXM
+-----END PGP PUBLIC KEY BLOCK-----
+pub   2048R/C481E45C 2013-02-27
+uid                  Massimiliano Perrone <massi@apache.org>
+sig 3        C481E45C 2013-02-27  Massimiliano Perrone <massi@apache.org>
+sub   2048R/27590625 2013-02-27
+sig          C481E45C 2013-02-27  Massimiliano Perrone <massi@apache.org>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+mQENBFEtxKgBCADBsuKiFu3pKRIxZuKIxsyhtsaLKsm/ZQcTjy8DnjSMaJA61kP1
+AzTqDctmAJxdOJmYQrzU80bO/o1f0YeKN30zA2Swy0ysHwv76vDXRbmEti8A4FmB
+Q1bXfVXEkWD2C4FsoSiTgOnA0k2Prh6AMU1NSRh4IutXqUz6heUuGnVQfMAP75UC
+HcxGHhCu0MxbKEefl29te76p+s8okMMzKrdfk/Gg0W6fqPwVOGXzZ0iJBvCbUHrz
+b4f1iQwLX+7Xz+PawkYVhNLNlL4lnWfR30nzr4lcpx0QISq2Lcc9BelCpKT4KOCU
+oZP0v29SBTgHZG5J9RvF9Sj5jqU3P95f5okNABEBAAG0J01hc3NpbWlsaWFubyBQ
+ZXJyb25lIDxtYXNzaUBhcGFjaGUub3JnPokBOAQTAQIAIgUCUS3EqAIbAwYLCQgH
+AwIGFQgCCQoLBBYCAwECHgECF4AACgkQ1pAZ4sSB5Fw96Af/T7DQcECB3ATXoi5x
+0t4yPm3XkHgshVTIYG/9Ed51J+ytj5v/iOtM6OZx4z4gVdQhWDCR8ulCN77THL3y
+BBgP4FKXgqXQAwCOH48g3lzH7taTxRLFOmqUaKIBDdD1PuV7iQC5vPMH3EZJkYdZ
+DPcRN6OebQrhnozIrFcLtl0u9ZDIilBKA30B5o+yqXrKgAbxi/bp/7sO1G/MqYV/
+AaaKUt6FZtOklsZHyMTRCb2WzzlSPFJvlNnkAhO70z6sgNKLh7MtUQZ45fLQFhg3
+JM0Ii4OpjI0kfAFqJ/yrCtsz6riADwyAC8tdCVaTR2UNpFWueO/IUDCxE/M5Bqmt
+ATmMGrkBDQRRLcSoAQgAponum+uGwSZ6kVnNALCLXtM9RzxXY6UmUVXonII4JqUi
+MWdBjEqNwgZ/c1p8OkfcPqvi09tyP0BIMs63knygEVUdubQAFo7XDaoTV1mQDetT
+Tly0PddZ2EnXri23+zsu11I6kqmHXkDFewCpa2N2yo5d5KRMNd0XNJaG4r8uxKXk
+xE264QY6A0DlzYi4bEIwpjzwWnmoE/KavHcdjHQ83S66L+spz/b1VXXOTLJ4Md5B
+v58wjw3ba+gDmSHLnKhOmomoUBopJlkPayE90eHO3Z9yATAcJvAm/stHkjU3+uhJ
+mmKS4HxzQCcYNJhyVXe6NFK1RbN2yTVF5s/tjHgxvwARAQABiQEfBBgBAgAJBQJR
+LcSoAhsMAAoJENaQGeLEgeRcyiUH/05wKo7qhHnpjCeyuKP4OKUFC3ZVuKkI6po3
+JSogv7Xq9trw5fJDOfyOkscqtfhBoP09t2jofxuxCqDiIjDoHXtdZCACDQk028BJ
+rSo2BxEg6qVXJ6W1VL95Y6NoVr5ZCLD50T/1iSN08WaMOauJ3gDoksYdu0ZHoJpN
+di4eNRTMJFQ8+NiYf1Yvx2MZJ34hqyGZkZ1EFul9vG7lh8k8BftpNElUOD9AeOD4
+R+B6pe6tDyc0dSFc2Amw+fJDN6LgCg0kcYJB9AlUk3etCe/mA3AU2ilxslV4Jtpv
+q/gWM7AbN9To7mdb4RRR/rjszuYqf0/ttleN9+cPqj0LolhOFVM=
+=YWC3
+-----END PGP PUBLIC KEY BLOCK-----
