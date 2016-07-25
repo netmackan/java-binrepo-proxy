@@ -16,6 +16,7 @@
  */
 package com.markuspage.jbinrepoproxy.standalone.trust;
 
+import java.util.Collection;
 import org.bouncycastle.openpgp.PGPPublicKey;
 
 /**
@@ -28,5 +29,7 @@ public interface TrustMap {
     boolean isKeyTrustedForURI(String uri, PGPPublicKey publicKey);
 
     boolean isTrustedChecksumStoredForURI(String uri, byte[] data);
+
+    Collection<String> getTrustedURIs(PGPPublicKey publicKey);
     
 }

@@ -29,6 +29,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -130,6 +132,14 @@ public class PropertiesFileTrustMap implements TrustMap {
             return allowed;
         }
 
+    }
+    
+    @Override
+    public Collection<String> getTrustedURIs(PGPPublicKey publicKey) {
+        String fingerprint = Hex.toHexString(publicKey.getFingerprint()).toUpperCase(Locale.US);
+        LOG.info("fingerprint: {}", fingerprint);
+        String allowedPath = properties.getProperty(FINGERPRINT_PREFIX + "." + fingerprint);
+        return allowedPath == null ? Collections.emptyList() : Arrays.asList(allowedPath);
     }
 
     private static final String BEGIN_PUBLIC_KEY = "-----BEGIN PGP PUBLIC KEY BLOCK-----";

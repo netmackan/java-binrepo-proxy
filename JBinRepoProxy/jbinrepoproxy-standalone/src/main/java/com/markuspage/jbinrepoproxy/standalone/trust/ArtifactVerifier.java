@@ -33,6 +33,7 @@ import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.markuspage.jbinrepoproxy.standalone.trust.SignatureResult.*;
+import java.util.Collection;
 
 /**
  *
@@ -91,6 +92,8 @@ public class ArtifactVerifier {
             // TODO: Move out error message to the caller
             String msg = String.format("%s=0x%X", uri, publicKey.getKeyID());
             LOG.error(String.format("Not allowed artifact %s and keyID:\n\t%s\n", uri, msg));
+            Collection<String> otherURIs = trustMap.getTrustedURIs(publicKey);
+            LOG.error("Key trusted for: " + otherURIs)
             return new SignatureVerificationData(publicKey, KEY_UNTRUSTED);
         }
 
