@@ -94,13 +94,13 @@ public class Main {
         artifactVerifier = new ArtifactVerifier(trustMap, keysMap, true);
 
         // Start the server
-        startServer(config.getHost(), config.getPort(), host);
+        startServer(config.getHost(), config.getPort(), host, config.isLearningMode());
 
         // Watch for changes in the trust directory and reload when needed
         runFileWatchService(config.getTrustMapFile(), keysMap);
     }
     
-    private static void startServer(String hostname, int port, HttpHost host) throws IOException {
+    private static void startServer(String hostname, int port, HttpHost host, boolean learningMode) throws IOException {
         TransportHandler handler = new TransportHandler() {
 
             private final TransactionLogger transactionLogger = new TransactionLogger();
@@ -108,6 +108,7 @@ public class Main {
             @Override
             public TransportResult handleRequest(String uri, TransportRequest request, TransportClient client, TransactionInfo transaction) {
                 LOG.info("Is acceptable?: {}", uri);
+                transactionLogger.setSignatureResult(null);
                 try {
                     final TransportResult result;
 
@@ -152,11 +153,16 @@ public class Main {
                                 if (cvd.isTrusted()) {
                                     result = TransportResult.SUCCESS;
                                 } else {
-                                    result = new TransportResult(403, "Not trusted checksum: " + cvd.getResult());
+                                    if (learningMode) {
+                                        // In "learning mode" we accept everything
+                                        LOG.error("Not trusted checksum: " + cvd.getResult() + " but accepted as we are in learning mode");
+                                        result = TransportResult.SUCCESS;
+                                    } else {
+                                        result = new TransportResult(403, "Not trusted checksum: " + cvd.getResult());
+                                    }
                                 }
                             }
                         } else {
-                            transactionLogger.setSignatureResult(null);
                             result = new TransportResult(403, "Signature fetch failed (" + signatureFetch.getResponseCode() + "): " + signatureFetch.getErrorMessage());
                         }
                     }

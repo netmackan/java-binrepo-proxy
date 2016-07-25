@@ -36,6 +36,7 @@ public class Configuration {
     private static final String PROPERTY_TRUST_MAP_FILE = "trust.map.file";
     private static final String PROPERTY_CACHE_KEYS_FOLDER = "cache.keys.folder";
     private static final String PROPERTY_CACHE_KEYS_SERVER = "cache.keys.server";
+    private static final String PROPERTY_LEARNING_MODE = "trust.learningmode";
 
     private final File file;
     private final String host;
@@ -46,6 +47,7 @@ public class Configuration {
     private final File trustMapFile;
     private final File cacheKeysFolder;
     private final String cacheKeysServer;
+    private final boolean learningMode;
 
     public static Configuration fromFile(File file) throws FileNotFoundException, IOException {
         // Load configuration properties
@@ -82,10 +84,13 @@ public class Configuration {
         }
         final String cacheKeysServer = config.getProperty(PROPERTY_CACHE_KEYS_SERVER);
 
-        return new Configuration(file, host, port, targetScheme, targetHost, targetPort, trustMapFile, cacheKeysFolder, cacheKeysServer);
+        // Learning mode
+        final boolean learningMode = Boolean.parseBoolean(config.getProperty(PROPERTY_LEARNING_MODE, Boolean.FALSE.toString()));
+        
+        return new Configuration(file, host, port, targetScheme, targetHost, targetPort, trustMapFile, cacheKeysFolder, cacheKeysServer, learningMode);
     }
 
-    public Configuration(final File file, final String host, final int port, final String targetScheme, final String targetHost, final int targetPort, final File trustMapFile, final File cacheKeysFolder, final String cacheKeysServer) {
+    public Configuration(final File file, final String host, final int port, final String targetScheme, final String targetHost, final int targetPort, final File trustMapFile, final File cacheKeysFolder, final String cacheKeysServer, final boolean learningMode) {
         this.file = file;
         this.host = host;
         this.port = port;
@@ -95,6 +100,7 @@ public class Configuration {
         this.trustMapFile = trustMapFile;
         this.cacheKeysFolder = cacheKeysFolder;
         this.cacheKeysServer = cacheKeysServer;
+        this.learningMode =  learningMode;
     }
 
     public String getHost() {
@@ -129,9 +135,13 @@ public class Configuration {
         return cacheKeysServer;
     }
 
+    public boolean isLearningMode() {
+        return learningMode;
+    }
+
     @Override
     public String toString() {
         return "Configuration{" + file + "}";
     }
-    
+
 }
