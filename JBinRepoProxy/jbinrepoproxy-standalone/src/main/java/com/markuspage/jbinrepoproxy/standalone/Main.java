@@ -25,8 +25,12 @@ import com.markuspage.jbinrepoproxy.standalone.transport.TransportResult;
 import com.markuspage.jbinrepoproxy.standalone.transport.TransportServer;
 import com.markuspage.jbinrepoproxy.standalone.transport.sun.SunTransportServer;
 import com.markuspage.jbinrepoproxy.standalone.trust.ArtifactVerifier;
+import com.markuspage.jbinrepoproxy.standalone.trust.ChecksumResult;
+import com.markuspage.jbinrepoproxy.standalone.trust.ChecksumVerificationData;
 import com.markuspage.jbinrepoproxy.standalone.trust.URIVerifier;
 import com.markuspage.jbinrepoproxy.standalone.trust.KeysMap;
+import com.markuspage.jbinrepoproxy.standalone.trust.SignatureResult;
+import com.markuspage.jbinrepoproxy.standalone.trust.SignatureVerificationData;
 import com.markuspage.jbinrepoproxy.standalone.trust.file.PropertiesFileTrustMap;
 import com.markuspage.jbinrepoproxy.standalone.trust.s4u.PGPVerifyMavenPluginKeysMap;
 import java.io.File;
@@ -118,29 +122,41 @@ public class Main {
                             String signature = new String(signatureFetch.getContent());
                             LOG.debug(signature);
 
+                            final SignatureResult signatureResult;
+                            
                             TransportFetch theFetch = client.httpGetTheFile();
                             if (theFetch.getResponseCode() != 200) {
+                                signatureResult = SignatureResult.SIGNATURE_MISSING;
                                 result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
                             } else {
-                                if (artifactVerifier.verifyBySignature(uri, theFetch.getContent(), signature)) {
+                                SignatureVerificationData svd = artifactVerifier.verifyBySignature(uri, theFetch.getContent(), signature);
+                                signatureResult = svd.getResult();
+                                if (svd.isTrusted()) {
                                     result = TransportResult.SUCCESS;
                                 } else {
-                                    result = new TransportResult(403, "Signature verification failed");
+                                    result = new TransportResult(403, "Not trusted signature: " + svd.getResult());
                                 }
                             }
+                            transactionLogger.setSignatureResult(signatureResult);
                         } else if (signatureFetch.getResponseCode() == 404) {
                             LOG.debug("Signature file not found, checking for trusted digest instead");
+                            transactionLogger.setSignatureResult(SignatureResult.SIGNATURE_MISSING);
                             TransportFetch theFetch = client.httpGetTheFile();
+                            final ChecksumResult checksumResult;
                             if (theFetch.getResponseCode() != 200) {
                                 result = new TransportResult(theFetch.getResponseCode(), theFetch.getErrorMessage());
+                                checksumResult = ChecksumResult.FAILED;
                             } else {
-                                if (artifactVerifier.verifyByStoredChecksum(uri, theFetch.getContent())) {
+                                ChecksumVerificationData cvd = artifactVerifier.verifyByStoredChecksum(uri, theFetch.getContent());
+                                checksumResult = cvd.getResult();
+                                if (cvd.isTrusted()) {
                                     result = TransportResult.SUCCESS;
                                 } else {
-                                    result = new TransportResult(403, "No signature");
+                                    result = new TransportResult(403, "Not trusted checksum: " + cvd.getResult());
                                 }
                             }
                         } else {
+                            transactionLogger.setSignatureResult(null);
                             result = new TransportResult(403, "Signature fetch failed (" + signatureFetch.getResponseCode() + "): " + signatureFetch.getErrorMessage());
                         }
                     }

@@ -17,6 +17,7 @@
 package com.markuspage.jbinrepoproxy.standalone;
 
 import com.markuspage.jbinrepoproxy.standalone.transport.TransactionInfo;
+import com.markuspage.jbinrepoproxy.standalone.trust.SignatureResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,8 @@ public class TransactionLogger {
 
     /** Logger for this class. */
     private static final Logger LOG = LoggerFactory.getLogger(TransactionLogger.class);
+    
+    private SignatureResult signatureResult; // XXX
 
     public void log(TransactionInfo t) {
         final StringBuilder sb = new StringBuilder();
@@ -40,8 +43,16 @@ public class TransactionLogger {
         }
         sb.append("   ").append(t.getResponseCode());
 
+        if (signatureResult != null) {
+            sb.append("\n").append("   ").append(signatureResult);
+        }
+        
         sb.append("\n<<<");
 
         LOG.error(sb.toString());
+    }
+
+    void setSignatureResult(SignatureResult signatureResult) {
+        this.signatureResult = signatureResult;
     }
 }

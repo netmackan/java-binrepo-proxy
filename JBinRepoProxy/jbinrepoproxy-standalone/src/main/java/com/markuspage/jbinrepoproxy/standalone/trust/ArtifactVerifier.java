@@ -32,6 +32,7 @@ import org.bouncycastle.openpgp.operator.bc.BcKeyFingerprintCalculator;
 import org.bouncycastle.openpgp.operator.bc.BcPGPContentVerifierBuilderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static com.markuspage.jbinrepoproxy.standalone.trust.SignatureResult.*;
 
 /**
  *
@@ -63,24 +64,37 @@ public class ArtifactVerifier {
         this.failWeakSignature = failWeakSignature;
     }
 
-    public boolean verifyBySignature(String uri, byte[] data, String signature) throws IOException {
+    public SignatureVerificationData verifyBySignature(String uri, byte[] data, String signature) throws IOException {
+        InputStream sigInputStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature.getBytes("ASCII")));
+        PGPObjectFactory pgpObjectFactory = new PGPObjectFactory(sigInputStream, new BcKeyFingerprintCalculator());
+        PGPSignatureList sigList = (PGPSignatureList) pgpObjectFactory.nextObject();
+
+        // No signature
+        if (sigList == null) {
+            return new SignatureVerificationData(SIGNATURE_MISSING);
+        }
+
+        // Get key from keys map
+        PGPSignature pgpSignature = sigList.get(0);
+        PGPPublicKey publicKey;
         try {
-            InputStream sigInputStream = PGPUtil.getDecoderStream(new ByteArrayInputStream(signature.getBytes("ASCII")));
-            PGPObjectFactory pgpObjectFactory = new PGPObjectFactory(sigInputStream, new BcKeyFingerprintCalculator());
-            PGPSignatureList sigList = (PGPSignatureList) pgpObjectFactory.nextObject();
-            if (sigList == null) {
-                throw new IOException("Missing signature");
-            }
-            PGPSignature pgpSignature = sigList.get(0);
+            publicKey = keysMap.getKey(pgpSignature.getKeyID());
+        } catch (PGPException ex) {
+            return new SignatureVerificationData(KEY_ERROR, ex);
+        }
+        if (publicKey == null) {
+            return new SignatureVerificationData(KEY_UNKNOWN);
+        }
 
-            PGPPublicKey publicKey = keysMap.getKey(pgpSignature.getKeyID());
+        // Check if the key is trusted for the URI
+        if (!trustMap.isKeyTrustedForURI(uri, publicKey)) {
+            // TODO: Move out error message to the caller
+            String msg = String.format("%s=0x%X", uri, publicKey.getKeyID());
+            LOG.error(String.format("Not allowed artifact %s and keyID:\n\t%s\n", uri, msg));
+            return new SignatureVerificationData(publicKey, KEY_UNTRUSTED);
+        }
 
-            if (!trustMap.isKeyTrustedForURI(uri, publicKey)) {
-                String msg = String.format("%s=0x%X", uri, publicKey.getKeyID());
-                LOG.error(String.format("Not allowed artifact %s and keyID:\n\t%s\n", uri, msg));
-                return false;
-            }
-
+        try {
             pgpSignature.init(new BcPGPContentVerifierBuilderProvider(), publicKey);
             pgpSignature.update(data);
 
@@ -92,27 +106,33 @@ public class ArtifactVerifier {
                     if (failWeakSignature) {
                         LOG.error("Weak signature algorithm used: "
                                 + WEAK_SIGALGS.get(pgpSignature.getHashAlgorithm()));
-                        return false;
+                        return new SignatureVerificationData(publicKey, SIGNATURE_WEAK);
                     } else {
                         LOG.warn("Weak signature algorithm used: "
                                 + WEAK_SIGALGS.get(pgpSignature.getHashAlgorithm()));
                     }
                 }
-                return true;
+                return new SignatureVerificationData(publicKey, TRUSTED);
             } else {
                 LOG.warn(String.format(msgFormat, uri,
                         "ERROR", publicKey.getKeyID(), Arrays.asList(publicKey.getUserIDs())));
                 LOG.warn(uri);
-                return false;
+                return new SignatureVerificationData(publicKey, SIGNATURE_BAD);
             }
         } catch (PGPException ex) {
-            throw new IOException(ex);
+            return new SignatureVerificationData(publicKey, SIGNATURE_ERROR, ex);
         }
     }
 
-    public boolean verifyByStoredChecksum(String uri, byte[] content) {
-        return trustMap.isTrustedChecksumStoredForURI(uri, content);
+    public ChecksumVerificationData verifyByStoredChecksum(String uri, byte[] content) {
+        final ChecksumResult result;
+        if (trustMap.isTrustedChecksumStoredForURI(uri, content)) {
+            result = ChecksumResult.TRUSTED;
+        } else {
+            result = ChecksumResult.FAILED;
+        }
+        return new ChecksumVerificationData(result);
     }
-    
+
     
 }
