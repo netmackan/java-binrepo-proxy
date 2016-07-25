@@ -53,7 +53,7 @@ Configure your ~/.m2/settings.xml to use the proxy as mirror of EVERYTHING
 
 Tip: To test building of your project with an empty repository in order to see that it fetches and verifies the artifacts an empty folder can be specified as your local Maven repo:
 ```
-mvn -Dmaven.repo.local=$HOME/.my/other/repository clean install
+mvn -s sample-settings.xml -Dmaven.repo.local=/tmp/test123 clean install
 ```
 
 ## Trust Configuration

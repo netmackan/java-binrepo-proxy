@@ -1,0 +1,25 @@
+<!-- 
+    Sample of a local Maven settings file overriding the default URLs of Maven
+    central to use the JBinRepoProxy.
+    
+    Copy to ~/.m2/settings.xml or edit your existing file if you have one.
+    
+    The current settings can be seen by running:
+    $ mvn help:effective-settings
+-->
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                          http://maven.apache.org/xsd/settings-1.0.0.xsd">
+
+    <mirrors>
+        <mirror>
+            <id>binrepo-proxy</id>
+            <name>JBinRepoProxy proxy</name>
+            <mirrorOf>*</mirrorOf>
+            <url>http://localhost:8888/maven2</url>
+        </mirror>
+    </mirrors>
+
+</settings>
