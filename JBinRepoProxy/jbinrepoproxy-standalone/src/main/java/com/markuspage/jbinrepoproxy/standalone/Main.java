@@ -93,6 +93,9 @@ public class Main {
         // Verifier
         artifactVerifier = new ArtifactVerifier(trustMap, keysMap, true);
 
+        // Learning mode
+        LOG.info("In learning mode: {}", config.isLearningMode());
+        
         // Start the server
         startServer(config.getHost(), config.getPort(), host, config.isLearningMode());
 
