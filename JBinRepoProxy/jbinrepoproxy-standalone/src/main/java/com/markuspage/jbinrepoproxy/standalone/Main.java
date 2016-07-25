@@ -135,7 +135,13 @@ public class Main {
                                 if (svd.isTrusted()) {
                                     result = TransportResult.SUCCESS;
                                 } else {
-                                    result = new TransportResult(403, "Not trusted signature: " + svd.getResult());
+                                    // Check if we instead have a trusted digest for it. TODO: This policy should maybe be configurable
+                                    ChecksumVerificationData cvd = artifactVerifier.verifyByStoredChecksum(uri, theFetch.getContent());
+                                    if (cvd.isTrusted()) {
+                                        result = TransportResult.SUCCESS;
+                                    } else { 
+                                        result = new TransportResult(403, "Not trusted signature: " + svd.getResult());
+                                    }
                                 }
                             }
                             transactionLogger.setSignatureResult(signatureResult);
